@@ -55,7 +55,7 @@ Agradecemos às seguintes pessoas que estão contribuindo para este projeto:
     </td>
     <td align="center">
       <a href="https://www.linkedin.com/in/athos-massafera-59b661223/">
-        <img src="https://github.com/otaviozordan/ARduck-PROJETE2022/blob/main/img/profile/Rayssa.jpg" width="125px;" alt="Foto da Rayssa"/><br>
+        <img src="https://github.com/otaviozordan/ARducks/blob/main/mdimg/profile/Athos.jpg" width="125px;" alt="Foto da Rayssa"/><br>
         <sub>
           <b><p>Athos Massafera</p><p>(AR Designer)</p><a href="https://github.com/AthosMBA18"><h5>Acesse o meu perfil</h>
         </a>
