@@ -24,22 +24,20 @@ def registrar_acao():
             db.session.commit()
             print("Usuário Cadastrado.")
             response['success'] = True
-            status = 200
-            return Response(json.dumps(response), status=status, mimetype="application/json")
+            return Response(json.dumps(response), status=200, mimetype="application/json")
         if not nome:
             response['Mensagem'] = 'Nome nulo.'
         if not email:
             response['Mensagem'] = response['Mensagem'] + 'Email nulo.'
         if not pwd:
             response['Mensagem'] = response['Mensagem'] + 'Password nulo.'
-        return Response(json.dumps(response), status=status, mimetype="application/json")
+        return Response(json.dumps(response), status=200, mimetype="application/json")
     
     except Exception as e:
         print('Erro', e, " ao cadastrar usuário.")
         response['success'] = False
         response['erro'] = str(e)
-        status = 400
-        return Response(json.dumps(response), status=status, mimetype="application/json")
+        return Response(json.dumps(response), status=400, mimetype="application/json")
 
 @app.route('/login', methods=['GET'])
 def login_pagina():
@@ -48,9 +46,16 @@ def login_pagina():
 @app.route('/login', methods=['POST'])
 def login_acao():
     body = request.get_json()
-    if body['email']:
-        email = body['email']
+    email = body['email']
     pwd = body['password']
+    response = {}
+
+    user = Usuario.query.filter_by(email=email).first()
+    if not user or user.verify_password(pwd):
+        response["Mensagem"] = "Usuario ou senha incorreta"
+        return Response(json.dumps(response), status=200, mimetype="application/json")
+
+
 
 
 @app.route('/logout')
