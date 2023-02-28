@@ -16,7 +16,6 @@ def registrar_acao():
     nome = body['nome']
     email = body['email']
     response = {}
-
     try:
         if nome and email and pwd:
             usuario = Usuario(password=pwd, nome=nome, email=email, turma=None)
@@ -54,9 +53,6 @@ def login_acao():
     if not user or user.verify_password(pwd):
         response["Mensagem"] = "Usuario ou senha incorreta"
         return Response(json.dumps(response), status=200, mimetype="application/json")
-
-
-
 
 @app.route('/logout')
 def logout():
