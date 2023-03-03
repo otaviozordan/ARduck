@@ -1,4 +1,4 @@
-from app import db, login_manager
+from app import db, login_manager, app
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
@@ -12,7 +12,7 @@ class Usuario(db.Model, UserMixin):
     password = db.Column(db.String(50), nullable=False)
     nome = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    turma = db.Column(db.String(50))
+    turma = db.Column(db.String(50), default='1', nullable=False)
 
     def __init__(self, username, password, nome, email, turma):
         self.username = username
@@ -26,11 +26,7 @@ class Usuario(db.Model, UserMixin):
 
     def __repr__(self):
         return "<User %r>" % self.username
-    
 
-#class Circuitos(db.Model):
-#    __tablename__ = 'circuitos'
-#
-#    id = db.Column(db.Integer, primary_key=True)
-#    turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'))
-
+def create_login_table():
+    with app.app_context():
+        db.create_all()

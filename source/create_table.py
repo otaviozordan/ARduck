@@ -1,5 +1,5 @@
-from app.models.login_table import db
-from app import app
+from app.models.user_table import create_login_table
+from app.models.quiz_table import create_quiz_table
 
-with app.app_context():
-    db.create_all()
+create_login_table()
+create_quiz_table()
