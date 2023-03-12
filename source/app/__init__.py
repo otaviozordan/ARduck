@@ -10,5 +10,6 @@ db = SQLAlchemy(app)
 
 login_manager = LoginManager(app)
 
-from app.controllers import routes
-from app.controllers import login
+from app.controllers.user import user_control_routes
+from app.controllers.user import user_login_routes
+from app.controllers.quiz import quiz_routes

@@ -30,6 +30,6 @@ def verificarRespostaCorreta(id, respostaDoUsuario):
         else:
              return False
 
-def creat_quiz_table():
+def create_quiz_table():
     with app.app_context():
         db.create_all()

@@ -18,28 +18,37 @@ def carregar_questao(id):
     response["alternativa4"] = questao.alternativa4
     return Response(json.dumps(response), status=200, mimetype="application/json")
 
-@app.route("/listquestoes/<colecao>", methods=["GET"])
-def listquestoes(colecao):
-    questoes = Questoes.query.filter_by(colecao=colecao).all()
-    return Response(json.dumps(questoes), status=200, mimetype="application/json")
+@app.route("/listquestoes", methods=["GET"])
+def listquestoes():
+    questoes_objeto = Questoes.query.all()
+    questoes_json = questoes_objeto[1]
+
+    print(questoes_json)
+    return Response("ok", status=200, mimetype="application/json")
 
 @app.route("/createquestao", methods=["POST"])
 def createquestao():
     body = request.get_json()
-    
-    colecao = body["colecao"]
-    titulo = body["titulo"]
-    texto = body["texto"]
-    imgPath = body["imgPath"]
-    respostaCorreta = body["respostaCorreta"]
-    alternativa1 = body["alternativa1"]    
-    alternativa2 = body["alternativa2"]
-    alternativa3 = body["alternativa3"]
-    alternativa4 = body["alternativa4"]
-
     response = {}
+    
     try:
-        questao = Questoes(colecao=colecao, titulo=titulo, texto=texto, imgPath=imgPath, respostaCorreta=respostaCorreta, alternativeativa1=alternativa1, alternativa2=alternativa2, alternativa3=alternativa3, alternativa4=alternativa4)
+        colecao = body["colecao"]
+        titulo = body["titulo"]
+        texto = body["texto"]
+        imgPath = body["imgPath"]
+        respostaCorreta = body["respostaCorreta"]
+        alternativa1 = body["alternativa1"]    
+        alternativa2 = body["alternativa2"]
+        alternativa3 = body["alternativa3"]
+        alternativa4 = body["alternativa4"]
+    except Exception as e:
+        print('Erro', e)
+        response['create'] = False
+        response['erro'] = str(e)
+        return Response(json.dumps(response), status=400, mimetype="application/json")
+    
+    try:
+        questao = Questoes(colecao=colecao, titulo=titulo, texto=texto, imgPath=imgPath, respostaCorreta=respostaCorreta, alternativa1=alternativa1, alternativa2=alternativa2, alternativa3=alternativa3, alternativa4=alternativa4)
         db.session.add(questao)
         db.session.commit()
         print("Quiz Cadastrado.")
