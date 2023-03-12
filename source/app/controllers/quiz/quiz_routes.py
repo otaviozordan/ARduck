@@ -21,10 +21,14 @@ def carregar_questao(id):
 @app.route("/listquestoes", methods=["GET"])
 def listquestoes():
     questoes_objeto = Questoes.query.all()
-    questoes_json = questoes_objeto[1]
+    questoes_json = [questao.to_json() for questao in questoes_objeto]
+    return Response(json.dumps(questoes_json), status=200, mimetype="application/json")
 
-    print(questoes_json)
-    return Response("ok", status=200, mimetype="application/json")
+@app.route("/listquestoes/<colecao>", methods=["GET"])
+def listquestoes_porcolecao(colecao):
+    questoes_objeto = Questoes.query.filter_by(colecao=colecao).all()
+    questoes_json = [questao.to_json() for questao in questoes_objeto]
+    return Response(json.dumps(questoes_json), status=200, mimetype="application/json")
 
 @app.route("/createquestao", methods=["POST"])
 def createquestao():

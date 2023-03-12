@@ -23,6 +23,20 @@ class Questoes(db.Model):
         self.alternativa3 = alternativa3
         self.alternativa4 = alternativa4
 
+    def to_json(self):
+        return {
+                "id": self.id,
+                "colecao": self.colecao,
+                "titulo": self.titulo,
+                "texto": self.texto,
+                "imgPath": self.imgPath,
+                "respostaCorreta": self.respostaCorreta,
+                "alternativa1": self.alternativa1,
+                "alternativa2": self.alternativa2,
+                "alternativa3": self.alternativa3,
+                "alternativa4": self.alternativa4
+             }
+
 def verificarRespostaCorreta(id, respostaDoUsuario):
         Questao = Questoes.query.filter_by(id=id).first()
         if Questao.respostaCorreta == respostaDoUsuario:
