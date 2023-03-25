@@ -1,5 +1,5 @@
 from app import app, db
-from app.models.quiz_table import Questoes, verificarRespostaCorreta
+from app.models.questoes_table import Questoes, verificarRespostaCorreta
 from flask import Response, request
 import json
 

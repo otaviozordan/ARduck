@@ -5,7 +5,7 @@ from flask_login import UserMixin
 
 @login_manager.user_loader
 def get_user(user_id):
-    return Usuario.query.filter_by(id=user_id)
+    return Usuario.query.filter_by(id=user_id).first()
 
 class Usuario(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -15,11 +15,20 @@ class Usuario(db.Model, UserMixin):
     turma = db.Column(db.String(50), default='1')
 
     def __init__(self, username, password, nome, email, turma):
-        self.username = username
+        self.id = id 
         self.password = generate_password_hash(password)
         self.nome = nome
         self.email = email
         self.turma = turma
+
+    def to_json(self):
+        return {
+                "id": self.id,
+                "password": self.password,
+                "nome": self.nome,
+                "email": self.email,
+                "turma": self.turma,
+             }
 
     def verify_password(self, pwd):
         return check_password_hash(self.password, pwd)
