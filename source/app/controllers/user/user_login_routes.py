@@ -29,6 +29,8 @@ def login_acao():
     except Exception as e:
         response = {'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
     
-@app.route('/logout')
+@app.route('/logout', methods=['POST', 'GET'])
 def logout():
     logout_user()
+    response = {"usuario": False}
+    return Response(json.dumps(response), status=200, mimetype="application/json")
