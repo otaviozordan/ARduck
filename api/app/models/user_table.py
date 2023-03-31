@@ -14,7 +14,7 @@ class Usuario(db.Model, UserMixin):
     email = db.Column(db.String(100), unique=True, nullable=False)
     turma = db.Column(db.String(50), default='1')
 
-    def __init__(self, username, password, nome, email, turma):
+    def __init__(self, password, nome, email, turma):
         self.id = id 
         self.password = generate_password_hash(password)
         self.nome = nome
@@ -33,8 +33,23 @@ class Usuario(db.Model, UserMixin):
     def verify_password(self, pwd):
         return check_password_hash(self.password, pwd)
 
+    @property 
+    def is_authenticated(self):
+        return True
+    
+    @property
+    def is_active(self):
+        return True
+    
+    @property
+    def is_anonymous(self):
+        return False
+    
+    def get_id(self):
+        return str(self.id)
+
     def __repr__(self):
-        return "<User %r>" % self.username
+        return "<User %r>" % self.nome
 
 def create_login_table():
     with app.app_context():

@@ -8,7 +8,6 @@ def registrar_acao():
     body = request.get_json()
 
     try:
-        username = body['username']
         pwd = body['password']
         nome = body['nome']
         email = body['email']
@@ -21,7 +20,7 @@ def registrar_acao():
         response = {}
         try:
             if nome and email and pwd:
-                usuario = Usuario(username=username, password=pwd, nome=nome, email=email, turma=turma)   
+                usuario = Usuario(password=pwd, nome=nome, email=email, turma=turma)   
                 db.session.add(usuario)
                 db.session.commit()
 
