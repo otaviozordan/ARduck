@@ -1,5 +1,5 @@
 from flask import request, Response
-from app import db, app
+from app import db, app, mongoDB
 from app.models.user_table import Usuario
 import json
 
@@ -20,12 +20,16 @@ def registrar_acao():
         response = {}
         try:
             if nome and email and pwd:
-                usuario = Usuario(password=pwd, nome=nome, email=email, turma=turma)   
+                usuario = Usuario(password=pwd, nome=nome, email=email, turma=turma)
                 db.session.add(usuario)
                 db.session.commit()
 
+                userPermissao = {"usuario":nome, "email":email}
+                x = mongoDB.Permissoes.insert_one(userPermissao)
+
                 print("Usuário Cadastrado.")
                 response['create'] = True
+                response['id_user_permissao'] = str(x.inserted_id)
                 return Response(json.dumps(response), status=200, mimetype="application/json")
     
         except Exception as e:

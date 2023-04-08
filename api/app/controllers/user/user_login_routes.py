@@ -32,5 +32,5 @@ def login_acao():
 @app.route('/logout', methods=['POST', 'GET'])
 def logout():
     logout_user()
-    response = {"usuario": False}
+    response = {"usuario": False, "Mensagem:":"Usuário desconectado"}
     return Response(json.dumps(response), status=200, mimetype="application/json")

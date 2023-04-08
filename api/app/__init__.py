@@ -9,14 +9,17 @@ app = Flask(__name__)
 
 app.secret_key = 'super secret key'
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/arduck'
-db = SQLAlchemy(app)
+try:
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/arduck'
+    db = SQLAlchemy(app)
 
-mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")
-mongoDB = mongoClient["ARduck"]
-colectionTrilhas = mongoDB["Trilhas"]
+    mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")
+    mongoDB = mongoClient["ARduck"]
 
+except Exception as e:
+    print('Erro', e, " ao cadastrar conectar aos Databases.")
+    
 login_manager = LoginManager(app)
 login_manager.init_app(app)
 

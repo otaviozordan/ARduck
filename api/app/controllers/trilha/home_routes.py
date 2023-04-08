@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, Response
 from flask_login import current_user
-from app import app, db, colectionTrilhas
+from app import app, db
 import json
 
 @app.route('/home', methods=['GET'])

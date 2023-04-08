@@ -47,3 +47,7 @@ def verificarRespostaCorreta(id, respostaDoUsuario):
 def create_quiz_table():
     with app.app_context():
         db.create_all()
+
+def delete_quiz_table():
+    with app.app_context():
+        db.questoes.drop()

@@ -54,3 +54,7 @@ class Usuario(db.Model, UserMixin):
 def create_login_table():
     with app.app_context():
         db.create_all()
+
+def delete_login_table():
+    with app.app_context():
+        db.usuarios.drop()
