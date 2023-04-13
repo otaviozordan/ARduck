@@ -1,6 +1,6 @@
 from flask import request, Response
 from app import db, app, mongoDB
-from app.models.user_table import Usuario
+from app.models.user_table import Usuario, authenticate
 import json
 
 @app.route('/registrar', methods=['POST'])
@@ -17,27 +17,38 @@ def registrar_acao():
         else :
             turma = None
 
+        if ('privilegio' in body):
+            privilegio = body['privilegio']
+        else: 
+            privilegio = None
+
         response = {}
         try:
             if nome and email and pwd:
-                usuario = Usuario(password=pwd, nome=nome, email=email, turma=turma)
+                usuario = Usuario(password=pwd, nome=nome, email=email, turma=turma, privilegio=privilegio)
                 db.session.add(usuario)
                 db.session.commit()
 
                 userPermissao = {"usuario":nome, "email":email}
                 x = mongoDB.Permissoes.insert_one(userPermissao)
-
                 print("Usuário Cadastrado.")
                 response['create'] = True
                 response['id_user_permissao'] = str(x.inserted_id)
-                return Response(json.dumps(response), status=200, mimetype="application/json")
     
         except Exception as e:
             print('Erro', e, " ao cadastrar usuário.")
             response['create'] = False
             response['erro'] = str(e)
-            
             return Response(json.dumps(response), status=200, mimetype="application/json")
+        
+        trilhas_habilitadas =  mongoDB.Trilhas.find({"habilitado_padrao": True})
+        for trilha_habilitada in trilhas_habilitadas:
+                nome = trilha_habilitada.nome
+                query = {"email": email}
+                update = {'$set': {nome: "Enable"}}
+                mongoDB.Permissoes.update_one(query, update, upsert=True);
+            
+        return Response(json.dumps(response), status=200, mimetype="application/json")
 
     except Exception as e:
         response = {'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}

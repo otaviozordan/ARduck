@@ -1,16 +1,20 @@
 from app.models.user_table import create_login_table
 from app.models.questoes_table import create_quiz_table
 from app import mongoDB
+from pymongo import ASCENDING
 
 try: 
     mongoDB.create_collection("Permissoes")
 except Exception as e:
-    print('Erro: ', e, " [ao criar coleção]")
+    print('Erro: ', e, " [ao criar coleção Permissoes]")
 
 try: 
     mongoDB.create_collection("Trilhas")
+    mongoDB.Trilhas.create_index([('nome', -1)],unique=True)
+    #mongoDB.Trilhas.create_index([('nome', )],unique=True)
+
 except Exception as e:
-    print('Erro: ', e, " [ao criar documento]")
+    print('Erro: ', e, " [ao criar coleção Trilhas]")
 
 try:    
     create_quiz_table()
@@ -22,5 +26,5 @@ try:
 except Exception as e:
     print('Erro: ', e, " [ao criar tabelas]")
 
-print("\n================================")
-print("Trabelas criadas...")
+print("\n=================================================")
+print("Concluido")

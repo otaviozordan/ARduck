@@ -1,7 +1,8 @@
 from app import db, login_manager, app
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
-
+from flask_login import UserMixin, current_user
+from flask import Response
+import json
 
 @login_manager.user_loader
 def get_user(user_id):
@@ -13,13 +14,15 @@ class Usuario(db.Model, UserMixin):
     nome = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     turma = db.Column(db.String(50), default='1')
+    privilegio = db.Column(db.String(50), default='usuario')
 
-    def __init__(self, password, nome, email, turma):
+    def __init__(self, password, nome, email, turma, privilegio):
         self.id = id 
         self.password = generate_password_hash(password)
         self.nome = nome
         self.email = email
         self.turma = turma
+        self.privilegio = privilegio
 
     def to_json(self):
         return {
@@ -28,6 +31,7 @@ class Usuario(db.Model, UserMixin):
                 "nome": self.nome,
                 "email": self.email,
                 "turma": self.turma,
+                "privilegio":self.privilegio
              }
 
     def verify_password(self, pwd):
@@ -55,6 +59,25 @@ def create_login_table():
     with app.app_context():
         db.create_all()
 
+def authenticate(privilegio_necessario): #Nãop funciona
+    authe = current_user.is_authenticated
+    print (authe)
+    try:
+        usuario = current_user
+        privilegio_user = usuario.privilegio
+        print (privilegio_user)
+        if (privilegio_user == privilegio_necessario):
+            return
+        else:
+            response = {"Acesso": "Negado", "Necessario":str(privilegio_necessario)}
+            return Response(json.dumps(response), status=200, mimetype="application/json") 
+    except:
+        response = {"Login": "Negado"}
+        return Response(json.dumps(response), status=200, mimetype="application/json") 
+
 def delete_login_table():
     with app.app_context():
-        db.usuarios.drop()
+        usuarios_obj = Usuario.query.all()
+        for usuario_obj in usuarios_obj:
+            db.session.delete(usuario_obj)
+            db.session.commit()

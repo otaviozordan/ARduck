@@ -50,4 +50,7 @@ def create_quiz_table():
 
 def delete_quiz_table():
     with app.app_context():
-        db.questoes.drop()
+        questoes_objeto = Questoes.query.all()
+        for questao_objeto in questoes_objeto:
+            db.session.delete(questao_objeto)
+            db.session.commit()
