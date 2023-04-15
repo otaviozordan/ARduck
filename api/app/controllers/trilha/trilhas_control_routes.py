@@ -9,6 +9,8 @@ def criartrilha():
     response = {}
 
     try:
+        trilha_colecao = body['colecao']
+        trilha_order = body['order']
         trilha_nome = body['trilha_nome']
         imagem_path = body['imagem_path']
         descricao = body['descricao']
@@ -34,6 +36,8 @@ def criartrilha():
 
         trilha = {
             "nome": trilha_nome,
+            "colecao": trilha_colecao,
+            "order": trilha_order,
             "imagem_path": imagem_path,
             "descricao": descricao,
             "options":{

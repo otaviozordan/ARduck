@@ -1,12 +1,12 @@
 from flask import request, Response
 from app import db, app, mongoDB
 from app.models.user_table import Usuario, authenticate
+from flask_login import current_user
 import json
 
 @app.route('/registrar', methods=['POST'])
-def registrar_acao():
+def registrar_acao():   
     body = request.get_json()
-
     try:
         pwd = body['password']
         nome = body['nome']
@@ -43,11 +43,10 @@ def registrar_acao():
         
         trilhas_habilitadas =  mongoDB.Trilhas.find({"habilitado_padrao": True})
         for trilha_habilitada in trilhas_habilitadas:
-                nome = trilha_habilitada.nome
+                nome_da_trilhas = trilha_habilitada["nome"]
                 query = {"email": email}
-                update = {'$set': {nome: "Enable"}}
+                update = {'$set': {nome_da_trilhas: "Enable"}}
                 mongoDB.Permissoes.update_one(query, update, upsert=True);
-            
         return Response(json.dumps(response), status=200, mimetype="application/json")
 
     except Exception as e:

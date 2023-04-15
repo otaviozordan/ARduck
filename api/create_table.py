@@ -11,7 +11,6 @@ except Exception as e:
 try: 
     mongoDB.create_collection("Trilhas")
     mongoDB.Trilhas.create_index([('nome', -1)],unique=True)
-    #mongoDB.Trilhas.create_index([('nome', )],unique=True)
 
 except Exception as e:
     print('Erro: ', e, " [ao criar coleção Trilhas]")

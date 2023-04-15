@@ -59,25 +59,29 @@ def create_login_table():
     with app.app_context():
         db.create_all()
 
-def authenticate(privilegio_necessario): #Nãop funciona
-    authe = current_user.is_authenticated
-    print (authe)
-    try:
-        usuario = current_user
-        privilegio_user = usuario.privilegio
-        print (privilegio_user)
-        if (privilegio_user == privilegio_necessario):
-            return
-        else:
-            response = {"Acesso": "Negado", "Necessario":str(privilegio_necessario)}
-            return Response(json.dumps(response), status=200, mimetype="application/json") 
-    except:
-        response = {"Login": "Negado"}
-        return Response(json.dumps(response), status=200, mimetype="application/json") 
-
 def delete_login_table():
     with app.app_context():
         usuarios_obj = Usuario.query.all()
         for usuario_obj in usuarios_obj:
             db.session.delete(usuario_obj)
             db.session.commit()
+
+def authenticate(privilegio):
+    response = {}
+    usuario = current_user.is_authenticated
+    if usuario: 
+        usuario = current_user
+        if (usuario.privilegio == privilegio):
+            return False
+        else:
+            response['Acesso'] = "negado"
+            response['Necessario'] = privilegio
+    else:
+        response['Acesso'] = "negado"
+        response['Necessario'] = "Estar logado"
+    return response
+
+#Usar:
+#    auth = authenticate("adm")
+#    if auth:
+#        return Response(json.dumps(auth), status=200, mimetype="application/json")
