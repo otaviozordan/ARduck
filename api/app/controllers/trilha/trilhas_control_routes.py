@@ -1,6 +1,7 @@
 from app import app, db, mongoDB
 from flask import Response, request
-from app.models.user_table import Usuario
+from flask_login import current_user
+from app.models.user_table import Usuario, authenticate
 import json
 
 @app.route("/criartrilha", methods=["POST"])
@@ -35,8 +36,8 @@ def criartrilha():
             Quiz_id = "Disabled"
 
         trilha = {
-            "nome": trilha_nome,
             "colecao": trilha_colecao,
+            "nome": trilha_nome,
             "order": trilha_order,
             "imagem_path": imagem_path,
             "descricao": descricao,
@@ -79,7 +80,7 @@ def criartrilha():
                     query = {"email": user.email}
                     update = {'$set': {trilha_nome: "Enable"}}
                     mongoDB.Permissoes.update_one(query, update);
-            elif ('habilitado_padrao' in body):
+            elif ('habilitado_padrao' in body and body['habilitado_padrao']!=False):
                 users = body["habilitado_padrao"]
                 for user in users:
                     query = {"email": user}
@@ -98,4 +99,42 @@ def criartrilha():
     
         return Response(json.dumps(response), status=400, mimetype="application/json")
 
+@app.route("/carregartrilhas/<string:colecao>", methods=["GET"])
+def carregartrilhas(colecao):
+    #try:
+        auth = authenticate("log")
+        if auth:
+            return Response(json.dumps(auth), status=200, mimetype="application/json")
+        
+        enable_lists = []
+        query = mongoDB.Trilhas.find({"colecao": colecao},{}).sort("order", 1)
+        email = current_user.email
+        permissoes = mongoDB.Permissoes.find({"email": email},{})
+        for permissao in permissoes:
+            permissao.pop('_id')
+            permissao.pop('usuario')
+            permissao.pop('email')
+            for key in permissao.keys():
+                enable_lists.append(key)
 
+        response = {}
+        response["Trilhas encontradas"] = []
+        for j in query:
+            j.pop('_id')
+            j.pop('colecao')
+            j.pop('habilitado_padrao')
+            j.pop('order')
+            j.pop('options')
+
+            nome_da_trilha = j['nome']
+            if nome_da_trilha in enable_lists:
+                j["enable"] = True
+            else:
+                j["enable"] = False
+            response["Trilhas encontradas"].append(j)
+
+        return Response(json.dumps(response), status=200, mimetype="application/json")
+    
+    #except Exception as e:
+        response = {'Erro:': str(e)}
+        return Response(json.dumps(response), status=400, mimetype="application/json")

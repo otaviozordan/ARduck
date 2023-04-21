@@ -6,8 +6,8 @@ import json
 
 @app.route('/login', methods=['POST'])
 def login_acao():
-    body = request.get_json()
     try:
+        body = request.get_json()
         email = body['email']
         pwd = body['password']
         response = {}

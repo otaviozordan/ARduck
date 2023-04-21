@@ -73,6 +73,8 @@ def authenticate(privilegio):
         usuario = current_user
         if (usuario.privilegio == privilegio):
             return False
+        elif(privilegio == "log"):
+            return False
         else:
             response['Acesso'] = "negado"
             response['Necessario'] = privilegio
