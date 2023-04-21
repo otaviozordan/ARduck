@@ -5,15 +5,22 @@ from pymongo import ASCENDING
 
 try: 
     mongoDB.create_collection("Permissoes")
+    mongoDB.Trilhas.create_index([('email', -1)],unique=True)
 except Exception as e:
     print('Erro: ', e, " [ao criar coleção Permissoes]")
+
 
 try: 
     mongoDB.create_collection("Trilhas")
     mongoDB.Trilhas.create_index([('nome', -1)],unique=True)
-
 except Exception as e:
     print('Erro: ', e, " [ao criar coleção Trilhas]")
+
+try: 
+    mongoDB.create_collection("Progresso")
+    mongoDB.Trilhas.create_index([('email', -1)],unique=True)
+except Exception as e:
+    print('Erro: ', e, " [ao criar coleção Progresso]")
 
 try:    
     create_quiz_table()

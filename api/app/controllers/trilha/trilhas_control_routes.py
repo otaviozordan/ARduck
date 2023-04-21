@@ -101,7 +101,7 @@ def criartrilha():
 
 @app.route("/carregartrilhas/<string:colecao>", methods=["GET"])
 def carregartrilhas(colecao):
-    #try:
+    try:
         auth = authenticate("log")
         if auth:
             return Response(json.dumps(auth), status=200, mimetype="application/json")
@@ -132,9 +132,24 @@ def carregartrilhas(colecao):
             else:
                 j["enable"] = False
             response["Trilhas encontradas"].append(j)
-
         return Response(json.dumps(response), status=200, mimetype="application/json")
     
-    #except Exception as e:
+    except Exception as e:
+        response = {'Erro:': str(e)}
+        return Response(json.dumps(response), status=400, mimetype="application/json")
+    
+@app.route("/registrarprogresso", methods=["POST"])
+def registrarprogresso():
+    try:
+        body = request.get_json()
+        auth = authenticate("log")
+        if auth:
+            return Response(json.dumps(auth), status=200, mimetype="application/json")
+        
+        email = current_user.email
+        
+        return Response(json.dumps(response), status=200, mimetype="application/json")
+    
+    except Exception as e:
         response = {'Erro:': str(e)}
         return Response(json.dumps(response), status=400, mimetype="application/json")

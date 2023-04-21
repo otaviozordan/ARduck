@@ -31,6 +31,7 @@ def registrar_acao():
 
                 userPermissao = {"usuario":nome, "email":email}
                 x = mongoDB.Permissoes.insert_one(userPermissao)
+                x = mongoDB.Progresso.insert_one(userPermissao)
                 print("Usuário Cadastrado.")
                 response['create'] = True
                 response['id_user_permissao'] = str(x.inserted_id)

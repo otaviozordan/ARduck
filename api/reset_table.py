@@ -8,6 +8,7 @@ print("a) Tabelas de usuários")
 print("b) Tabela de questões")
 print("c) Documento de Trilhas")
 print("d) Documento de Permissões")
+print("e) Documento de Progresso")
 print("All) Tudo")
 comand = input()
 
@@ -32,6 +33,12 @@ if comand == 'c' or comand == 'All':
 if comand == "d" or comand == "All":
     try: 
         mongoDB.Permissoes.drop()
+    except Exception as e:
+        print('Erro: ', e, " [ao deletar coleção]")
+
+if comand == "e" or comand == "All":
+    try: 
+        mongoDB.Progresso.drop()
     except Exception as e:
         print('Erro: ', e, " [ao deletar coleção]")
 

@@ -63,3 +63,37 @@ def createquestao():
         response['create'] = False
         response['erro'] = str(e)
         return Response(json.dumps(response), status=400, mimetype="application/json")
+    
+@app.route("/verificarquiz", methods=["POST"]) #Editar
+def verificarquiz():
+    body = request.get_json()
+    response = {}
+    
+    try:
+        colecao = body["colecao"]
+        titulo = body["titulo"]
+        texto = body["texto"]
+        imgPath = body["imgPath"]
+        respostaCorreta = body["respostaCorreta"]
+        alternativa1 = body["alternativa1"]    
+        alternativa2 = body["alternativa2"]
+        alternativa3 = body["alternativa3"]
+        alternativa4 = body["alternativa4"]
+    except Exception as e:
+        print('Erro', e)
+        response['create'] = False
+        response['erro'] = str(e)
+        return Response(json.dumps(response), status=400, mimetype="application/json")
+    
+    try:
+        questao = Questoes(colecao=colecao, titulo=titulo, texto=texto, imgPath=imgPath, respostaCorreta=respostaCorreta, alternativa1=alternativa1, alternativa2=alternativa2, alternativa3=alternativa3, alternativa4=alternativa4)
+        db.session.add(questao)
+        db.session.commit()
+        print("Quiz Cadastrado.")
+        response['create'] = True
+        return Response(json.dumps(response), status=200, mimetype="application/json")
+    except Exception as e:
+        print('Erro', e, " ao cadastrar Quiz.")
+        response['create'] = False
+        response['erro'] = str(e)
+        return Response(json.dumps(response), status=400, mimetype="application/json")
