@@ -5,7 +5,7 @@ from pymongo import ASCENDING
 
 try: 
     mongoDB.create_collection("Permissoes")
-    mongoDB.Trilhas.create_index([('email', -1)],unique=True)
+    mongoDB.Permissoes.create_index([('email', -1)],unique=True)
 except Exception as e:
     print('Erro: ', e, " [ao criar coleção Permissoes]")
 
@@ -18,7 +18,7 @@ except Exception as e:
 
 try: 
     mongoDB.create_collection("Progresso")
-    mongoDB.Trilhas.create_index([('email', -1)],unique=True)
+    mongoDB.Progresso.create_index([('email', -1)],unique=True)
 except Exception as e:
     print('Erro: ', e, " [ao criar coleção Progresso]")
 
