@@ -141,13 +141,23 @@ def carregartrilhas(colecao):
 @app.route("/registrarprogresso", methods=["POST"])
 def registrarprogresso():
     try:
-        body = request.get_json()
         auth = authenticate("log")
         if auth:
             return Response(json.dumps(auth), status=200, mimetype="application/json")
         
+        body = request.get_json()
         email = current_user.email
-        
+
+        try:
+            trilha = body["trilha"]
+            elemento = body["elemento"]
+            status = body["status"]
+
+            
+        except Exception as e:
+            response = {'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
+            return Response(json.dumps(response), status=400, mimetype="application/json")
+
         return Response(json.dumps(response), status=200, mimetype="application/json")
     
     except Exception as e:

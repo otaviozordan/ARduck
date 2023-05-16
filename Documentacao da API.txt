@@ -1,0 +1,16 @@
+-> Questões:
+/questao/<id> GET
+/listquestoes GET
+/listquestoes/<colecao> GET
+/createquestao POST
+/verificarquiz POST
+
+-> Trilhas:
+/criartrilha POST
+/carregartrilhas/<string:colecao> GET
+/registrarprogresso POST
+
+-> Usuarios:
+/registrar POST
+/login POST
+/logout GET
