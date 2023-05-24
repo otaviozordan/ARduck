@@ -1,7 +1,5 @@
 from flask import Flask
-
 from flask_login import LoginManager
-
 from flask_sqlalchemy import SQLAlchemy
 import pymongo
 
@@ -23,6 +21,7 @@ except Exception as e:
 login_manager = LoginManager(app)
 login_manager.init_app(app)
 
+from app.controllers.imagens import imgsRec
 from app.controllers.user import user_control_routes
 from app.controllers.user import user_login_routes
 from app.controllers.quiz import quiz_routes
