@@ -2,7 +2,7 @@ from app import db,app
 
 class Questoes(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    colecao = db.Column(db.Integer, nullable=False)
+    colecao = db.Column(db.String(50), nullable=False)
     titulo = db.Column(db.String(50), nullable=False)
     texto = db.Column(db.String(244), nullable=False)
     imgPath = db.Column(db.String(50), default=None)

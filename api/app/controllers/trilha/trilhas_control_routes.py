@@ -2,6 +2,7 @@ from app import app, db, mongoDB
 from flask import Response, request
 from flask_login import current_user
 from app.models.user_table import Usuario, authenticate
+from app.models.questoes_table import Questoes
 import json
 
 @app.route("/criartrilha", methods=["POST"])
@@ -92,6 +93,26 @@ def criartrilha():
             response['erro'] = str(e)    
             return Response(json.dumps(response), status=200, mimetype="application/json")
         
+        trilhaAndElementos = {}
+        trilhaAndElementos[trilha_nome] = {}
+        trilhaAndElementos[trilha_nome]["quiz"] = {}
+        nunQuestao = 1
+        questoes = Questoes.query.filter_by(colecao=trilha_nome)
+        users = Usuario.query.all()
+        for user in users: #Cadastra permissão no body do usuario
+                nome = user.nome
+                email = user.email
+                for questao in questoes:
+                    trilhaAndElementos[trilha_nome]["quiz"][str(nunQuestao)] = False
+                    nunQuestao = nunQuestao+1
+                query = {"email": email}
+                quiz = trilhaAndElementos[trilha_nome]
+                key = "Elementos."+str(trilha_nome)
+                update = {'$set': {key:quiz}}
+                print("X")
+                x = mongoDB.Progresso.update_one(query, update, upsert=True);
+                print(x.matched_count)
+   
         return Response(json.dumps(response), status=200, mimetype="application/json")
     
     except Exception as e:

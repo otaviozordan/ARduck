@@ -13,4 +13,9 @@
 -> Usuarios:
 /registrar POST
 /login POST
+/login_page POST
 /logout GET
+
+-> Imagens:
+/validacao_medidas GET(pagina) POST <n funciona insominia>
+/perfil GET(pagina) POST <n funciona insominia>
