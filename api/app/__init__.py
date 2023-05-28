@@ -25,5 +25,6 @@ from app.controllers.imagens import imgsRec
 from app.controllers.user import user_control_routes
 from app.controllers.user import user_login_routes
 from app.controllers.quiz import quiz_routes
+from app.controllers.quiz import quiz_respostas_abertas
 from app.controllers import home_routes
 from app.controllers.trilha import trilhas_control_routes

@@ -111,7 +111,6 @@ def criartrilha():
                 update = {'$set': {key:quiz}}
                 print("X")
                 x = mongoDB.Progresso.update_one(query, update, upsert=True);
-                print(x.matched_count)
    
         return Response(json.dumps(response), status=200, mimetype="application/json")
     

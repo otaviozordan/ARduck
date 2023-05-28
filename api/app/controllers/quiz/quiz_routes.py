@@ -1,5 +1,6 @@
-from app import app, db
+from app import app, db, mongoDB
 from app.models.questoes_table import Questoes, verificarRespostaCorreta
+from app.models.user_table import Usuario
 from flask import Response, request
 import json
 
@@ -51,18 +52,30 @@ def createquestao():
         response['erro'] = str(e)
         return Response(json.dumps(response), status=400, mimetype="application/json")
     
-    try:
-        questao = Questoes(colecao=colecao, titulo=titulo, texto=texto, imgPath=imgPath, respostaCorreta=respostaCorreta, alternativa1=alternativa1, alternativa2=alternativa2, alternativa3=alternativa3, alternativa4=alternativa4)
-        db.session.add(questao)
-        db.session.commit()
-        print("Quiz Cadastrado.")
-        response['create'] = True
-        return Response(json.dumps(response), status=200, mimetype="application/json")
-    except Exception as e:
-        print('Erro', e, " ao cadastrar Quiz.")
-        response['create'] = False
-        response['erro'] = str(e)
-        return Response(json.dumps(response), status=400, mimetype="application/json")
+    #try:
+    questao = Questoes(colecao=colecao, titulo=titulo, texto=texto, imgPath=imgPath, respostaCorreta=respostaCorreta, alternativa1=alternativa1, alternativa2=alternativa2, alternativa3=alternativa3, alternativa4=alternativa4)
+    db.session.add(questao)
+    db.session.commit()
+    users = Usuario.query.all()
+    if mongoDB.Trilhas.count_documents({"nome": colecao}) > 0:
+        for user in users:
+                email = user.email
+                nunQuestao = Questoes.query.filter_by(colecao=colecao).count()
+                query = {"email": email}
+                key = "Elementos."+str(colecao)+".quiz."+str(nunQuestao)
+                update = {'$set': {key:False}}
+                print("X")
+                x = mongoDB.Progresso.update_one(query, update, upsert=True);
+                print(x.matched_count)
+    
+    print("Quiz Cadastrado.")
+    response['create'] = True
+    return Response(json.dumps(response), status=200, mimetype="application/json")
+    #except Exception as e:
+        #print('Erro', e, " ao cadastrar Quiz.")
+        #response['create'] = False
+        #response['erro'] = str(e)
+        #return Response(json.dumps(response), status=400, mimetype="application/json")
     
 @app.route("/verificarquiz", methods=["POST"]) #Editar
 def verificarquiz():
