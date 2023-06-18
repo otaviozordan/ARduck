@@ -4,7 +4,7 @@ git commit -a -m "teste"                                            //Cria o com
 
 git remote add origin https://github.com/otaviozordan/ARduck.git   //Seleciona o repositório a ser salvo
 git branch -m main                                                 //Seleciona a branch a fazer upload
-git push -u origin main                                            //Envia o commit
+git push -u origin main                                            //Envia o commit ao servidor
 
 git branch                                                         //Ve as branch existentes local
 git checkout -b "nova branch"                                      //Cria uma nova branch localmente e muda
