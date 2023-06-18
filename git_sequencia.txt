@@ -7,6 +7,8 @@ git branch -m main                                                 //Seleciona a
 git push -u origin main                                            //Envia o commit
 
 git branch                                                         //Ve as branch existentes local
-git checkout -b "novo branch"                                      //Cria uma nova branch localmente e muda
+git checkout -b "nova branch"                                      //Cria uma nova branch localmente e muda
 git checkout <nome_da_branch>                                      //Muda de branch localmente
 git push --set-upstream origin <nova branch>                       //Cria a branch no repositório remoto
+
+git merge <nome_da_branch>                                         //Une na branch atual a branch <nome_da_branch>                                         
