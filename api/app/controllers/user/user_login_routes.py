@@ -6,28 +6,30 @@ import json
 
 @app.route('/login', methods=['POST', 'GET'])
 def login_acao():
+    body = request.get_json()
+    response = {}
+
     try:
-        body = request.get_json()
         email = body['email']
         pwd = body['password']
-        response = {}
-
-        user = Usuario.query.filter_by(email=email).first()
-        if not user or user.verify_password(pwd):
-            response['login'] = False
-            response["Mensagem"] = "Usuario ou senha incorreta"
-            return Response(json.dumps(response), status=200, mimetype="application/json")
-        else:
-            response["login"] = True
-            try:
-                login_user(user)
-                response["usuario"] = current_user.to_json()
-            except Exception as e:
-                response = {'Retorno': "impossivel fazer login", 'erro': str(e)}
-            return Response(json.dumps(response), status=200, mimetype="application/json")
-        
     except Exception as e:
-        response = {'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
+        response = {'Retorno': "Parametros ausentes", 'erro': str(e), "login":"Erro"}
+        return Response(json.dumps(response), status=400, mimetype="application/json")
+
+    user = Usuario.query.filter_by(email=email).first()
+    if not user or user.verify_password(pwd):
+        response['login'] = False
+        response["Mensagem"] = "Usuario ou senha incorreta"
+        return Response(json.dumps(response), status=200, mimetype="application/json")
+    else:
+        try:
+            login_user(user)
+            response["usuario"] = current_user.to_json()
+            response["login"] = True
+        except Exception as e:
+            response = {'Retorno': "impossivel fazer login", 'erro': str(e)}
+        return Response(json.dumps(response), status=200, mimetype="application/json")
+    
 
 @app.route('/logout', methods=['POST', 'GET'])
 def logout():

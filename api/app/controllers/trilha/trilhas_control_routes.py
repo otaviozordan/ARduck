@@ -14,22 +14,35 @@ def criartrilha():
         trilha_colecao = body['colecao']
         trilha_order = body['order']
         trilha_nome = body['trilha_nome']
-        imagem_path = body['imagem_path']
         descricao = body['descricao']
 
-        if('Teoria' in body):
-            teoria = body["AR_id"]
+        if 'imagem_path' in body:
+            imagem_path = body["imagem_path"]
+        else: 
+            imagem_path = "api\\app\\models\\imgs\\trilhas\\" + trilha_nome + "\\icone.png"
+
+        if 'teoria' in body:
+            teoria = body["teoria"]
+            img_teoria = body["img_teoria"]
         else: 
             teoria = "Disabled"
+            img_teoria = "Disabled"
 
-        if('AR' in body and body["AR"] == True):
+        if 'AR' in body and body["AR"] == True:
             AR = True
             AR_id = body["AR_id"]
         else: 
             AR = False
             AR_id = "Disabled"
 
-        if('Quiz' in body and body["Quiz"] == True):
+        if 'validacao_pratica' in body:
+            validacao_pratica_en = True
+            validacao_pratica = body["validacao_pratica"]
+        else: 
+            validacao_pratica_en = False
+            validacao_pratica = "Disabled"
+
+        if 'Quiz' in body and body["Quiz"] == True:
             Quiz = True
             Quiz_id = body["Quiz_id"]
         else: 
@@ -44,6 +57,7 @@ def criartrilha():
             "descricao": descricao,
             "options":{
                 "teoria": teoria,
+                "img_teoria":img_teoria,
                 "AR": {
                     "Enable": AR,
                     "id":AR_id
@@ -51,6 +65,10 @@ def criartrilha():
                 "Quiz": {
                     "Enable": Quiz,
                     "id":Quiz_id
+                },
+                "validacao_pratica":{
+                    "Enable": validacao_pratica_en,
+                    "type":validacao_pratica
                 }
             },
             "habilitado_padrao": False
@@ -109,14 +127,22 @@ def criartrilha():
                 quiz = trilhaAndElementos[trilha_nome]
                 key = "Elementos."+str(trilha_nome)
                 update = {'$set': {key:quiz}}
-                print("X")
                 x = mongoDB.Progresso.update_one(query, update, upsert=True);
+        
+                if trilha["options"]["AR"]["Enable"]:
+                    key = "Elementos." + str(trilha_nome) + ".AR.progresso"
+                    update = {'$set': {key:""}}
+                    x = mongoDB.Progresso.update_one(query, update, upsert=True);
+        
+                if trilha["options"]["validacao_pratica"]["Enable"] is not "Disable":
+                    key = "Elementos." + str(trilha_nome) + ".validacao_pratica.progresso"
+                    update = {'$set': {key:""}}
+                    x = mongoDB.Progresso.update_one(query, update, upsert=True);
    
         return Response(json.dumps(response), status=200, mimetype="application/json")
     
     except Exception as e:
         response = {'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
-    
         return Response(json.dumps(response), status=400, mimetype="application/json")
 
 @app.route("/carregartrilhas/<string:colecao>", methods=["GET"])
@@ -171,9 +197,44 @@ def registrarprogresso():
         try:
             trilha = body["trilha"]
             elemento = body["elemento"]
+            complemento = body["complemento"]
             status = body["status"]
 
-            
+            query = {"email": email}
+            key = "Elementos."+trilha+"."+elemento+"."+complemento
+
+            filtro = {key: {"$exists": True}}
+            resultado = mongoDB.Progresso.find_one(filtro)
+            if resultado is None:
+                response = {"Erro:":"Nenhum elemento correspondente"}
+                return Response(json.dumps(response), status=400, mimetype="application/json")
+
+            update = {'$set': {key:status}}
+            x = mongoDB.Progresso.update_one(query, update, upsert=True);
+
+            progresso = mongoDB.Progresso.find_one({"email":email})
+            trilha_em_progresso = progresso["Elementos"][trilha]
+
+            completos = []
+            for item in trilha_em_progresso:
+                for elemento in item:
+                    if elemento is not True:
+                        break;
+                completos.append(item)
+            print(completos)
+            if len(completos) == len(progresso["Elementos"]):
+                query = {"email": email}
+                key = "Concluido."+str(trilha)
+                update = {'$set': {key:True}}
+                print("X")
+                x = mongoDB.Progresso.update_one(query, update, upsert=True);
+    
+
+            response = {
+                "status_da_query":x.acknowledged,
+                "numero_de_modificacao":x.modified_count
+            }
+        
         except Exception as e:
             response = {'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
             return Response(json.dumps(response), status=400, mimetype="application/json")

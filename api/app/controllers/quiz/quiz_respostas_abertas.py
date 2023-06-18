@@ -7,10 +7,10 @@ import json
 import openai
 
 # Define OpenAI API key 
-openai.api_key = "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"
+openai.api_key = "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"
 
 # Set up the model and prompt
-model_engine = "davinci3"
+model_engine = "davinci"
 
 @app.route("/validar_resposta_aberta", methods=["POST"])
 def validar_resposta_aberta():
@@ -24,7 +24,7 @@ def validar_resposta_aberta():
         response = {'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
 
     try:
-        prompt = f"Considere que voce é um professor faz a seguinte pergunta a um de seus alunos:\"" + pergunta + "\" e seu aluno responde:\"" + resposta + "\". Avalie se a resposta está valida com correta ou errado e avalie de 0 a 10 a resposta"
+        prompt = f"Considere que voce é um professor faz a seguinte pergunta a um de seus alunos:\"" + pergunta + "\" e seu aluno responde:\"" + resposta + "\". Avalie se a resposta está valida com correta ou errado e avalie de 0 a 10 a resposta e caso incorreto diga qual seria a resposta correta."
         # Generate a response
         completion = openai.Completion.create(
             engine=model_engine,
