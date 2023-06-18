@@ -5,6 +5,9 @@ from app import app
 import json
 import os
 
+DATABASE_IMG_PATH = 'api\\app\\models\\imgs\\'
+
+
 @app.route('/validar_multimetro_upimg', methods=['GET', 'POST'])
 def validar_multimetro_upimg():
     auth = authenticate("log")
@@ -22,7 +25,7 @@ def validar_multimetro_upimg():
 
         try:
             # Define o diretório onde a imagem será salva
-            save_dir = 'api\\app\\models\\imgs\\validacao_multimetro'
+            save_dir = DATABASE_IMG_PATH + 'validacao_multimetro'
             nome_usuario = current_user.email        
             user_dir = os.path.join(save_dir, nome_usuario)
             if not os.path.exists(user_dir):
@@ -81,7 +84,7 @@ def perfil_upimg():
 
         try:
             # Define o diretório onde a imagem será salva
-            save_dir = 'api\\app\models\\imgs\\foto_de_perfil'
+            save_dir = DATABASE_IMG_PATH + 'foto_de_perfil'
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
 
@@ -134,7 +137,7 @@ def criartrilha_upimg():
 
         try:
             # Define o diretório onde a imagem será salva
-            save_dir = 'api\\app\models\\imgs\\trilhas'
+            save_dir = DATABASE_IMG_PATH + 'trilhas'
 
             nome_trilha = request.form['trilha']    
             path_trilha = os.path.join(save_dir, nome_trilha)
