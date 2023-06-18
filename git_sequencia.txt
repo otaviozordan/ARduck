@@ -6,5 +6,7 @@ git remote add origin https://github.com/otaviozordan/ARduck.git   //Seleciona o
 git branch -m main                                                 //Seleciona a branch a fazer upload
 git push -u origin main                                            //Envia o commit
 
-git checkout -b "novo branch"                                      //Cria uma nova branch localmente
-git push --set-upstream origin <nova branch>                        //Cria a branch no repositório remoto
+git branch                                                         //Ve as branch existentes local
+git checkout -b "novo branch"                                      //Cria uma nova branch localmente e muda
+git checkout <nome_da_branch>                                      //Muda de branch localmente
+git push --set-upstream origin <nova branch>                       //Cria a branch no repositório remoto
