@@ -9,14 +9,14 @@ app.secret_key = 'super secret key'
 
 try:
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/arduck'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost:3306/arduck'
     db = SQLAlchemy(app)
 
     mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")
     mongoDB = mongoClient["ARduck"]
 
 except Exception as e:
-    print('Erro', e, " ao cadastrar conectar aos Databases.")
+    print("[ERRO] Erro ao conectar no DATABASE / ", e)
     
 login_manager = LoginManager(app)
 login_manager.init_app(app)

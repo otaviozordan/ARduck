@@ -13,7 +13,7 @@ class Usuario(db.Model, UserMixin):
     password = db.Column(db.String(50), nullable=False)
     nome = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    turma = db.Column(db.String(50), default='1')
+    turma = db.Column(db.String(50), default='default')
     privilegio = db.Column(db.String(50), default='usuario')
 
     def __init__(self, password, nome, email, turma, privilegio):
@@ -74,6 +74,8 @@ def authenticate(privilegio):
         if (usuario.privilegio == privilegio):
             return False
         elif(privilegio == "log"):
+            return False
+        elif(usuario.privilegio == "administrador"):
             return False
         else:
             response['Acesso'] = "negado"

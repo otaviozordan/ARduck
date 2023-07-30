@@ -7,10 +7,19 @@ import json
 
 @app.route("/criartrilha", methods=["POST"])
 def criartrilha():
+    auth = authenticate("professor")
+    if auth:
+        return Response(json.dumps(auth), status=200, mimetype="application/json")
+    
     body = request.get_json()
     response = {}
 
     try:
+        if 'turma' in body:
+            turma = body['turma']
+        else: 
+            turma = "default"
+    
         trilha_colecao = body['colecao']
         trilha_order = body['order']
         trilha_nome = body['trilha_nome']
@@ -19,8 +28,8 @@ def criartrilha():
         if 'imagem_path' in body:
             imagem_path = body["imagem_path"]
         else: 
-            imagem_path = "api\\app\\models\\imgs\\trilhas\\" + trilha_nome + "\\icone.png"
-
+            imagem_path = "api\\app\\models\\imgs\\trilhas\\" + turma + "\\" + trilha_nome + "\\icone.png"
+        
         if 'teoria' in body:
             teoria = body["teoria"]
             img_teoria = body["img_teoria"]
@@ -49,68 +58,76 @@ def criartrilha():
             Quiz = False
             Quiz_id = "Disabled"
 
-        trilha = {
-            "colecao": trilha_colecao,
-            "nome": trilha_nome,
-            "order": trilha_order,
-            "imagem_path": imagem_path,
-            "descricao": descricao,
-            "options":{
-                "teoria": teoria,
-                "img_teoria":img_teoria,
-                "AR": {
-                    "Enable": AR,
-                    "id":AR_id
-                },
-                "Quiz": {
-                    "Enable": Quiz,
-                    "id":Quiz_id
-                },
-                "validacao_pratica":{
-                    "Enable": validacao_pratica_en,
-                    "type":validacao_pratica
-                }
-            },
-            "habilitado_padrao": False
-        }
-
-        try:
-            x = mongoDB.Trilhas.insert_one(trilha)
-
-            print("Trilha Cadastrada.")
-            response['create'] = x.acknowledged
-            response["id"] = str(x.inserted_id)
+    except Exception as e:
+        response = {'create':False,'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
+        return Response(json.dumps(response), status=400, mimetype="application/json")
     
-        except Exception as e:
-            print('Erro', e, " ao cadastrar trilha.")
-            response['create'] = False
-            response['erro'] = str(e)
+    trilha = {
+        "trilha_nome":trilha_nome,
+        "colecao": trilha_colecao,
+        "order": trilha_order,
+        "imagem_path": imagem_path,
+        "descricao": descricao,
+        "options":{
+            "teoria": teoria,
+            "img_teoria":img_teoria,
+            "AR": {
+                "Enable": AR,
+                "id":AR_id
+            },
+            "Quiz": {
+                "Enable": Quiz,
+                "id":Quiz_id
+            },
+            "validacao_pratica":{
+                "Enable": validacao_pratica_en,
+                "type":validacao_pratica
+            }
+        },
+        "habilitado_padrao": False
+    }
             
-            return Response(json.dumps(response), status=200, mimetype="application/json")
+    try:    
+        if ('habilitado_padrao' in body and body['habilitado_padrao']==True):
+            trilha["habilitado_padrao"]:True
+            users = Usuario.query.all()
+            for user in users: #Cadastra permissão no body do usuario
+                query = {"email": user.email}
+                update = {'$set': {trilha_nome: True}}
+                x = mongoDB.Permissoes.update_one(query, update);
+                print("[INFO] Permissão definida: ", x.upserted_id," / Para o usuário '", user.nome,"'")
 
-        try:    
-            if ('habilitado_padrao' in body and body['habilitado_padrao']==True):
-                query = {'nome': trilha_nome}
-                update = {'$set': {"habilitado_padrao": True}}
-                x = mongoDB.Trilhas.update_one(query, update); #Cadastra permissão no body da trilhas
-                print(x.matched_count)
-                users = Usuario.query.all()
-                for user in users: #Cadastra permissão no body do usuario
-                    query = {"email": user.email}
-                    update = {'$set': {trilha_nome: "Enable"}}
-                    mongoDB.Permissoes.update_one(query, update);
-            elif ('habilitado_padrao' in body and body['habilitado_padrao']!=False):
-                users = body["habilitado_padrao"]
-                for user in users:
-                    query = {"email": user}
-                    update = {'$set': {trilha_nome: "Enable"}}
-                    mongoDB.Permissoes.update_one(query, update, upsert=True);
-        except Exception as e:
-            print('Erro:', e, " ao cadastrar permissoes.")
-            response['create'] = False
-            response['erro'] = str(e)    
-            return Response(json.dumps(response), status=200, mimetype="application/json")
-        
+        elif ('habilitado_padrao' in body and body['habilitado_padrao']!=False):
+            users = body["habilitado_padrao"]
+            for user in users:
+                query = {"email": user}
+                update = {'$set': {trilha_nome: False}}
+                x = mongoDB.Permissoes.update_one(query, update, upsert=True);
+    
+    except Exception as e:
+        response['create'] = False
+        response['erro'] = str(e)   
+        response['Retorno'] = 'Erro ao definir permisssões'                
+        print("[ERRO] Erro ao definir permisssões / ", e)
+
+        return Response(json.dumps(response), status=200, mimetype="application/json")
+
+    try:
+        query = {"turma":turma, "autor":current_user.nome}
+        update = {'$set': {trilha_nome:trilha}}
+        x = mongoDB.Trilhas.update_one(query, update, upsert=True); #Cadastra permissão no body da trilhas
+        print("[INFO] Trilha Cadastrada: ", x.upserted_id)
+        response['create'] = x.acknowledged
+
+    except Exception as e:
+        response['erro'] = str(e)
+        response['create'] = False
+        response['Retorno'] = 'Erro ao criar trilha'
+        print("[ERRO] Erro ao criar trilha / ", e)
+
+        return Response(json.dumps(response), status=200, mimetype="application/json")
+    
+    try:
         trilhaAndElementos = {}
         trilhaAndElementos[trilha_nome] = {}
         trilhaAndElementos[trilha_nome]["quiz"] = {}
@@ -123,6 +140,7 @@ def criartrilha():
                 for questao in questoes:
                     trilhaAndElementos[trilha_nome]["quiz"][str(nunQuestao)] = False
                     nunQuestao = nunQuestao+1
+
                 query = {"email": email}
                 quiz = trilhaAndElementos[trilha_nome]
                 key = "Elementos."+str(trilha_nome)
@@ -133,17 +151,20 @@ def criartrilha():
                     key = "Elementos." + str(trilha_nome) + ".AR.progresso"
                     update = {'$set': {key:""}}
                     x = mongoDB.Progresso.update_one(query, update, upsert=True);
-        
-                if trilha["options"]["validacao_pratica"]["Enable"] is not "Disable":
+    
+                if trilha["options"]["validacao_pratica"]["Enable"] != "Disable":
                     key = "Elementos." + str(trilha_nome) + ".validacao_pratica.progresso"
                     update = {'$set': {key:""}}
                     x = mongoDB.Progresso.update_one(query, update, upsert=True);
-   
         return Response(json.dumps(response), status=200, mimetype="application/json")
     
     except Exception as e:
-        response = {'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
-        return Response(json.dumps(response), status=400, mimetype="application/json")
+        response['create'] = False
+        response['erro'] = str(e)
+        response['Retorno'] = 'Erro ao sincronizar usuários a trilha'
+        print("[ERRO] Erro ao sincronizar usuários a trilha / ", e)
+
+        return Response(json.dumps(response), status=200, mimetype="application/json")
 
 @app.route("/carregartrilhas/<string:colecao>", methods=["GET"])
 def carregartrilhas(colecao):
@@ -152,8 +173,21 @@ def carregartrilhas(colecao):
         if auth:
             return Response(json.dumps(auth), status=200, mimetype="application/json")
         
+        turma = current_user.turma
         enable_lists = []
-        query = mongoDB.Trilhas.find({"colecao": colecao},{}).sort("order", 1)
+        query = mongoDB.Trilhas.find({"turma":turma})
+        for q in query:
+            print(q)
+
+    except Exception as e:
+        response['find'] = False
+        response['erro'] = str(e)
+        response['Retorno'] = 'Erro ao carregar trilhas'
+        print("[ERRO] Erro ao carregar trilhas / ", e)
+
+        return Response(json.dumps(response), status=400, mimetype="application/json")
+
+    try:    
         email = current_user.email
         permissoes = mongoDB.Permissoes.find({"email": email},{})
         for permissao in permissoes:
@@ -162,7 +196,6 @@ def carregartrilhas(colecao):
             permissao.pop('email')
             for key in permissao.keys():
                 enable_lists.append(key)
-
         response = {}
         response["Trilhas encontradas"] = []
         for j in query:
@@ -171,7 +204,6 @@ def carregartrilhas(colecao):
             j.pop('habilitado_padrao')
             j.pop('order')
             j.pop('options')
-
             nome_da_trilha = j['nome']
             if nome_da_trilha in enable_lists:
                 j["enable"] = True
@@ -181,9 +213,13 @@ def carregartrilhas(colecao):
         return Response(json.dumps(response), status=200, mimetype="application/json")
     
     except Exception as e:
-        response = {'Erro:': str(e)}
+        response['find'] = False
+        response['erro'] = str(e)
+        response['Retorno'] = 'Erro ao selecionar trilhas'
+        print("[ERRO] Erro ao selecionar trilhas / ", e)
+
         return Response(json.dumps(response), status=400, mimetype="application/json")
-    
+       
 @app.route("/registrarprogresso", methods=["POST"])
 def registrarprogresso():
     try:
@@ -193,6 +229,7 @@ def registrarprogresso():
         
         body = request.get_json()
         email = current_user.email
+        turma = current_user.turma
 
         try:
             trilha = body["trilha"]

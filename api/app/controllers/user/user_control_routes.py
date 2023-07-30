@@ -12,26 +12,27 @@ def registrar_acao():
     try:
         email = body['email']
         usuario_existente = Usuario.query.filter_by(email=email).first()
-
         if usuario_existente:
             response = {'Retorno': "Email já criado", "create":False}
             return Response(json.dumps(response), status=400, mimetype="application/json")
         else:
             pwd = body['password']
             nome = body['nome']
-
             if ('turma' in body):
                 turma = body['turma']
-            else :
+            else:
                 turma = None
-
             if ('privilegio' in body):
                 privilegio = body['privilegio']
             else: 
                 privilegio = None
 
     except Exception as e:
-        response = {'Retorno': "Parametros ausentes", 'erro': str(e), "create":False}
+        response['create'] = False
+        response['erro'] = str(e)
+        response['Retorno'] = 'Parametros invalidos ou ausentes'
+        print("[ATENCAO] Parametros invalidos ou ausentes / ", e)
+
         return Response(json.dumps(response), status=400, mimetype="application/json")
 
     try:
@@ -39,34 +40,46 @@ def registrar_acao():
             usuario = Usuario(password=pwd, nome=nome, email=email, turma=turma, privilegio=privilegio)
             db.session.add(usuario)
             db.session.commit()
-            userPermissao = {"usuario":nome, "email":email}
-            x = mongoDB.Permissoes.insert_one(userPermissao)
-            trilhas_existentes =  mongoDB.Trilhas.find()
-            trilhaAndElementos = {}
-            for trilha in trilhas_existentes:
-                Trilha_nome = trilha["nome"]
-                trilhaAndElementos[Trilha_nome] = {}
-                trilhaAndElementos[Trilha_nome]["quiz"] = {}
-                nunQuestao = 1
-                questoes = Questoes.query.filter_by(colecao=Trilha_nome)
-                for questao in questoes:
-                    trilhaAndElementos[Trilha_nome]["quiz"][str(nunQuestao)] = False
-                    nunQuestao = nunQuestao+1
-            progressoDefult = {
-                "usuario":nome, "email":email,
-                "Elementos":trilhaAndElementos
-            }
-            x = mongoDB.Progresso.insert_one(progressoDefult)
-            query = {"email":email}
-            trilhas_existentes =  mongoDB.Trilhas.find()
-            for trilha in trilhas_existentes:
-                trilha_nome = trilha["nome"]
-                if trilha["options"]["AR"]["Enable"]:
-                    key = "Elementos." + str(trilha_nome) + ".AR.progresso"
-                    update = {'$set': {key:""}}
-                    x = mongoDB.Progresso.update_one(query, update, upsert=True);
-                
-                if trilha["options"]["validacao_pratica"]["Enable"] is not "Disable":
+            print("[INFO] Usuário cadastrado")
+
+    except Exception as e:
+        response['create'] = False
+        response['erro'] = str(e)
+        response['Retorno'] = 'Erro ao cadastrar usuário'
+        print("[ERRO] Erro ao cadastrar usuário / ", e)
+
+        return Response(json.dumps(response), status=200, mimetype="application/json")
+
+    try:
+        userPermissao = {"usuario":nome, "email":email}
+        x = mongoDB.Permissoes.insert_one(userPermissao)
+
+        trilhas_existentes =  mongoDB.Trilhas.find()
+        trilhaAndElementos = {}
+        for trilha in trilhas_existentes:
+            Trilha_nome = trilha["nome"]
+            trilhaAndElementos[Trilha_nome] = {}
+            trilhaAndElementos[Trilha_nome]["quiz"] = {}
+            nunQuestao = 1
+            questoes = Questoes.query.filter_by(colecao=Trilha_nome)
+            for questao in questoes:
+                trilhaAndElementos[Trilha_nome]["quiz"][str(nunQuestao)] = False
+                nunQuestao = nunQuestao+1
+        progressoDefult = {
+            "usuario":nome, "email":email,
+            "Elementos":trilhaAndElementos
+        }
+        x = mongoDB.Progresso.insert_one(progressoDefult)
+        query = {"email":email}
+        trilhas_existentes =  mongoDB.Trilhas.find()
+        for trilha in trilhas_existentes:
+            trilha_nome = trilha["nome"]
+            if trilha["options"]["AR"]["Enable"]:
+                key = "Elementos." + str(trilha_nome) + ".AR.progresso"
+                update = {'$set': {key:""}}
+                x = mongoDB.Progresso.update_one(query, update, upsert=True);
+
+                if trilha["options"]["validacao_pratica"]["Enable"] != "Disable":
                     key = "Elementos." + str(trilha_nome) + ".validacao_pratica.progresso"
                     update = {'$set': {key:""}}
                     x = mongoDB.Progresso.update_one(query, update, upsert=True);
@@ -78,12 +91,12 @@ def registrar_acao():
                 update = {'$set': {nome_da_trilhas: "Enable"}}
                 mongoDB.Permissoes.update_one(query, update, upsert=True);
         
-        print("Usuário Cadastrado.")
-        response['create'] = True
-        return Response(json.dumps(response), status=200, mimetype="application/json")            
-
+        Response(json.dumps(response), status=200, mimetype="application/json")
+        
     except Exception as e:
-        print('Erro', e, " ao cadastrar usuário.")
         response['create'] = False
         response['erro'] = str(e)
+        response['Retorno'] = 'Erro ao cadastrar usuário'
+        print("[ERRO] Erro ao definir usuário / ", e)
+
         return Response(json.dumps(response), status=200, mimetype="application/json")
