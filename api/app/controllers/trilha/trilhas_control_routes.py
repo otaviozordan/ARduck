@@ -95,7 +95,7 @@ def criartrilha():
                 query = {"email": user.email}
                 update = {'$set': {trilha_nome: True}}
                 x = mongoDB.Permissoes.update_one(query, update);
-                print("[INFO] Permissão definida: ", x.upserted_id," / Para o usuário '", user.nome,"'")
+                print("[INFO] Permissão definida: ", x.acknowledged," / Para o usuário '", user.nome,"'")
 
         elif ('habilitado_padrao' in body and body['habilitado_padrao']!=False):
             users = body["habilitado_padrao"]
@@ -116,8 +116,13 @@ def criartrilha():
         query = {"turma":turma, "autor":current_user.nome}
         update = {'$set': {trilha_nome:trilha}}
         x = mongoDB.Trilhas.update_one(query, update, upsert=True); #Cadastra permissão no body da trilhas
-        print("[INFO] Trilha Cadastrada: ", x.upserted_id)
-        response['create'] = x.acknowledged
+        
+        if x.modified_count:
+            print("[INFO] Trilha Cadastrada: ", x.acknowledged)
+            response["create"] = x.acknowledged
+        else:
+            print("[INFO] Trilha Atualizada: ", x.acknowledged)
+            response['create'] = 'Trilha atualizada'
 
     except Exception as e:
         response['erro'] = str(e)
@@ -168,16 +173,18 @@ def criartrilha():
 
 @app.route("/carregartrilhas/<string:colecao>", methods=["GET"])
 def carregartrilhas(colecao):
+    response = {}
     try:
         auth = authenticate("log")
         if auth:
             return Response(json.dumps(auth), status=200, mimetype="application/json")
         
-        turma = current_user.turma
         enable_lists = []
+        turma = current_user.turma
+        email = current_user.email
+
         query = mongoDB.Trilhas.find({"turma":turma})
-        for q in query:
-            print(q)
+        permissoes = mongoDB.Permissoes.find({"email": email},{})
 
     except Exception as e:
         response['find'] = False
@@ -187,97 +194,104 @@ def carregartrilhas(colecao):
 
         return Response(json.dumps(response), status=400, mimetype="application/json")
 
-    try:    
-        email = current_user.email
-        permissoes = mongoDB.Permissoes.find({"email": email},{})
+    try:
         for permissao in permissoes:
             permissao.pop('_id')
             permissao.pop('usuario')
             permissao.pop('email')
             for key in permissao.keys():
-                enable_lists.append(key)
-        response = {}
+                enable_lists.append(key) #Carrega as trilhas já habilitadas 
+
+        if len(enable_lists) == 0:
+            print("[INFO] Coleção solicitada inesistente / Usuário solicitante: '", current_user.nome,"'")
+            response['find'] = False
+            response['Retorno'] = 'Coleção solicitada inexistente'
+            return Response(json.dumps(response), status=200, mimetype="application/json")
+
         response["Trilhas encontradas"] = []
-        for j in query:
-            j.pop('_id')
-            j.pop('colecao')
-            j.pop('habilitado_padrao')
-            j.pop('order')
-            j.pop('options')
-            nome_da_trilha = j['nome']
-            if nome_da_trilha in enable_lists:
-                j["enable"] = True
-            else:
-                j["enable"] = False
-            response["Trilhas encontradas"].append(j)
+        for q in query:
+            q.pop('autor')
+            q.pop('turma')
+            q.pop('_id')
+
+        for j in q:
+            resultado = {j:{'enable':False}}
+            if j in enable_lists:
+                [resultado][j]["enable"] = True
+            response["Trilhas encontradas"].append(resultado)
+
+        print("[INFO] Buscado trilhas disponiveis para o usuário '", current_user.nome,"'")
         return Response(json.dumps(response), status=200, mimetype="application/json")
     
     except Exception as e:
         response['find'] = False
         response['erro'] = str(e)
-        response['Retorno'] = 'Erro ao selecionar trilhas'
-        print("[ERRO] Erro ao selecionar trilhas / ", e)
+        response['Retorno'] = 'Erro ao filtrar trilhas'
+        print("[ERRO] Erro ao filtrar trilhas / ", e)
 
         return Response(json.dumps(response), status=400, mimetype="application/json")
        
 @app.route("/registrarprogresso", methods=["POST"])
 def registrarprogresso():
+    response ={}
     try:
         auth = authenticate("log")
         if auth:
             return Response(json.dumps(auth), status=200, mimetype="application/json")
-        
+       
         body = request.get_json()
         email = current_user.email
         turma = current_user.turma
 
-        try:
-            trilha = body["trilha"]
-            elemento = body["elemento"]
-            complemento = body["complemento"]
-            status = body["status"]
+        trilha = body["trilha"]
+        elemento = body["elemento"]
+        complemento = body["complemento"]
+        status = body["status"]
+       
+    except Exception as e:
+        response['create'] = False
+        response['erro'] = str(e)
+        response['Retorno'] = 'Valores invalidos ou ausentes'
+        print("[ERRO] Erro ao cadastrar progresso/ Valores invalidos ou ausentes: ", e)
+        return Response(json.dumps(response), status=400, mimetype="application/json")   
 
-            query = {"email": email}
-            key = "Elementos."+trilha+"."+elemento+"."+complemento
-
-            filtro = {key: {"$exists": True}}
-            resultado = mongoDB.Progresso.find_one(filtro)
-            if resultado is None:
-                response = {"Erro:":"Nenhum elemento correspondente"}
-                return Response(json.dumps(response), status=400, mimetype="application/json")
-
-            update = {'$set': {key:status}}
-            x = mongoDB.Progresso.update_one(query, update, upsert=True);
-
-            progresso = mongoDB.Progresso.find_one({"email":email})
-            trilha_em_progresso = progresso["Elementos"][trilha]
-
-            completos = []
-            for item in trilha_em_progresso:
-                for elemento in item:
-                    if elemento is not True:
-                        break;
-                completos.append(item)
-            print(completos)
-            if len(completos) == len(progresso["Elementos"]):
-                query = {"email": email}
-                key = "Concluido."+str(trilha)
-                update = {'$set': {key:True}}
-                print("X")
-                x = mongoDB.Progresso.update_one(query, update, upsert=True);
-    
-
-            response = {
-                "status_da_query":x.acknowledged,
-                "numero_de_modificacao":x.modified_count
-            }
-        
-        except Exception as e:
-            response = {'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
+    try:   
+        query = {"email": email}
+        key = "Elementos."+trilha+"."+elemento+"."+complemento
+        filtro = {key: {"$exists": True}}
+        resultado = mongoDB.Progresso.find_one(filtro)
+        if resultado is None:
+            response = {"Erro:":"Nenhum elemento correspondente"}
             return Response(json.dumps(response), status=400, mimetype="application/json")
+        
+        update = {'$set': {key:status}}
+        x = mongoDB.Progresso.update_one(query, update, upsert=True);
 
+        progresso = mongoDB.Progresso.find_one({"email":email})
+        trilha_em_progresso = progresso["Elementos"][trilha]
+        completos = []
+        for item in trilha_em_progresso:
+            for elemento in item:
+                if elemento is not True:
+                    break;
+            completos.append(item)
+
+        if len(completos) == len(progresso["Elementos"]):
+            query = {"email": email}
+            key = "Concluido."+str(trilha)
+            update = {'$set': {key:True}}
+            x = mongoDB.Progresso.update_one(query, update, upsert=True);
+   
+        response = {
+            "status_da_query":x.acknowledged,
+            "numero_de_modificacao":x.modified_count
+        }
         return Response(json.dumps(response), status=200, mimetype="application/json")
     
     except Exception as e:
-        response = {'Erro:': str(e)}
-        return Response(json.dumps(response), status=400, mimetype="application/json")
+        response['create'] = False
+        response['erro'] = str(e)
+        response['Retorno'] = 'Erro ao cadastrar progresso'
+        print("[ERRO] Erro ao cadastrar progresso: ", e)
+        return Response(json.dumps(response), status=400, mimetype="application/json")   
+
