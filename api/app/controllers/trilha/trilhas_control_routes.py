@@ -1,9 +1,14 @@
-from app import app, db, mongoDB
-from flask import Response, request
+from app import app, db, mongoDB, DATABASE_IMG_PATH
+from flask import Response, request, render_template
 from flask_login import current_user
 from app.models.user_table import Usuario, authenticate
 from app.models.questoes_table import Questoes
 import json
+
+@app.route("/criartrilha", methods=['GET'])
+def render_cadastrar_trilha():
+    
+    return render_template('formulario_nova_trilha.html')
 
 @app.route("/criartrilha", methods=["POST"])
 def criartrilha():
@@ -28,7 +33,7 @@ def criartrilha():
         if 'imagem_path' in body:
             imagem_path = body["imagem_path"]
         else: 
-            imagem_path = "api\\app\\models\\imgs\\trilhas\\" + turma + "\\" + trilha_nome + "\\icone.png"
+            imagem_path = DATABASE_IMG_PATH + turma + "\\" + trilha_nome + "\\icone.png"
         
         if 'teoria' in body:
             teoria = body["teoria"]

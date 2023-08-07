@@ -57,27 +57,29 @@ def createquestao():
         db.session.add(questao)
         db.session.commit()
         users = Usuario.query.all()
-        if mongoDB.Trilhas.count_documents({"nome": colecao}) > 0:
-            for user in users:
-                    email = user.email
-                    nunQuestao = Questoes.query.filter_by(colecao=colecao).count()
-                    query = {"email": email}
-                    key = "Elementos."+str(colecao)+".quiz."+str(nunQuestao)
-                    update = {'$set': {key:False}}
-                    x = mongoDB.Progresso.update_one(query, update, upsert=True);
+        print("[INFO] Quiz cadastrado")
 
-                    key = "Concluido."+str(colecao)
-                    update = {'$set': {key:False}}
-                    x = mongoDB.Progresso.update_one(query, update, upsert=True);
+        for user in users:
+            email = user.email
+            print("[INFO] Elemento adionado para o usuário: ", email)
+            nunQuestao = Questoes.query.filter_by(colecao=colecao).count()
+            query = {"email": email}
+            key = "Elementos."+str(colecao)+".quiz."+str(nunQuestao)
+            update = {'$set': {key:False}}
+            x = mongoDB.Progresso.update_one(query, update, upsert=True);
 
+            key = "Concluido."+str(colecao)
+            update = {'$set': {key:False}}
+            x = mongoDB.Progresso.update_one(query, update, upsert=True);
 
-        print("Quiz Cadastrado.")
         response['create'] = True
         return Response(json.dumps(response), status=200, mimetype="application/json")
+    
     except Exception as e:
-        print('Erro', e, " ao cadastrar Quiz.")
         response['create'] = False
         response['erro'] = str(e)
+        response['Retorno'] = 'Erro ao cadastrar quiz'
+        print("[ERRO] Erro ao cadastrar quiz: ", e)
         return Response(json.dumps(response), status=400, mimetype="application/json")
     
 @app.route("/verificarquiz", methods=["POST"]) #Editar
@@ -95,21 +97,10 @@ def verificarquiz():
         alternativa2 = body["alternativa2"]
         alternativa3 = body["alternativa3"]
         alternativa4 = body["alternativa4"]
+
     except Exception as e:
-        print('Erro', e)
         response['create'] = False
         response['erro'] = str(e)
-        return Response(json.dumps(response), status=400, mimetype="application/json")
-    
-    try:
-        questao = Questoes(colecao=colecao, titulo=titulo, texto=texto, imgPath=imgPath, respostaCorreta=respostaCorreta, alternativa1=alternativa1, alternativa2=alternativa2, alternativa3=alternativa3, alternativa4=alternativa4)
-        db.session.add(questao)
-        db.session.commit()
-        print("Quiz Cadastrado.")
-        response['create'] = True
-        return Response(json.dumps(response), status=200, mimetype="application/json")
-    except Exception as e:
-        print('Erro', e, " ao cadastrar Quiz.")
-        response['create'] = False
-        response['erro'] = str(e)
+        response['Retorno'] = 'Parametros invalidos ou ausentes'
+        print("[ERRO] Erro ao varidicar quiz / Parametros invalidos ou ausentes: ", e)
         return Response(json.dumps(response), status=400, mimetype="application/json")

@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import OperationalError
 import pymongo
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 
 app.secret_key = 'super secret key'
+DATABASE_IMG_PATH = 'api\\app\\models\\imgs\\'
 
 try:
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
@@ -14,7 +16,7 @@ try:
 
     mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")
     mongoDB = mongoClient["ARduck"]
-
+   
 except Exception as e:
     print("[ERRO] Erro ao conectar no DATABASE / ", e)
     

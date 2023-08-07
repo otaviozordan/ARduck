@@ -38,6 +38,7 @@ def registrar_acao():
     try:
         if nome and email and pwd:
             usuario = Usuario(password=pwd, nome=nome, email=email, turma=turma, privilegio=privilegio)
+            usuario.get_id
             db.session.add(usuario)
             db.session.commit()
             print("[INFO] Usuário cadastrado")
@@ -96,7 +97,7 @@ def registrar_acao():
     except Exception as e:
         response['create'] = False
         response['erro'] = str(e)
-        response['Retorno'] = 'Erro ao cadastrar usuário'
-        print("[ERRO] Erro ao definir usuário / ", e)
+        response['Retorno'] = 'Erro ao sicronizar usuário'
+        print("[ERRO] Erro ao sicronizar usuário / ", e)
 
         return Response(json.dumps(response), status=200, mimetype="application/json")

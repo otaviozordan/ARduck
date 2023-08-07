@@ -1,12 +1,9 @@
 from app.models.user_table import authenticate
 from flask import request, Response
 from flask_login import current_user
-from app import app
+from app import app, DATABASE_IMG_PATH
 import json
 import os
-
-DATABASE_IMG_PATH = 'api\\app\\models\\imgs\\'
-
 
 @app.route('/validar_multimetro_upimg', methods=['GET', 'POST'])
 def validar_multimetro_upimg():

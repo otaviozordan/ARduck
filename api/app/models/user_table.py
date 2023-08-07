@@ -10,14 +10,13 @@ def get_user(user_id):
 
 class Usuario(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    password = db.Column(db.String(50), nullable=False)
+    password = db.Column(db.String(150), nullable=False)
     nome = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     turma = db.Column(db.String(50), default='default')
     privilegio = db.Column(db.String(50), default='usuario')
 
     def __init__(self, password, nome, email, turma, privilegio):
-        self.id = id 
         self.password = generate_password_hash(password)
         self.nome = nome
         self.email = email

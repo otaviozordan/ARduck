@@ -1,5 +1,6 @@
 from app import app,db
+from flask import render_template
 
-@app.route('/hello')
+@app.route('/')
 def index():
-    return "Hello World"
+    return render_template('login.html')
