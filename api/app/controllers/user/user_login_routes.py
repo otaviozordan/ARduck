@@ -4,7 +4,11 @@ from app import app, db
 from app.models.user_table import Usuario
 import json
 
-@app.route('/login', methods=['POST', 'GET'])
+@app.route('/login', methods=['GET'])
+def login_render():
+    return render_template('auth/login.html')
+
+@app.route('/login', methods=['POST'])
 def login_acao():
     body = request.get_json()
     response = {}
@@ -13,23 +17,31 @@ def login_acao():
         email = body['email']
         pwd = body['password']
     except Exception as e:
-        response = {'Retorno': "Parametros ausentes", 'erro': str(e), "login":"Erro"}
-        return Response(json.dumps(response), status=400, mimetype="application/json")
+        response['login'] = False
+        response['erro'] = str(e)   
+        response['Retorno'] = 'Parametros invalidos ou ausentes'                
+        print("[ATENCAO] Parametros invalidos ou ausentes: ", e)
+        return Response(json.dumps(response), status=200, mimetype="application/json")
 
     user = Usuario.query.filter_by(email=email).first()
     if not user or user.verify_password(pwd):
         response['login'] = False
-        response["Mensagem"] = "Usuario ou senha incorreta"
+        response["mensagem"] = "Usuario ou senha incorreta"
+        print("[ATENÇAO] Login incorreto. Tentativa de acessar: ", email)
         return Response(json.dumps(response), status=200, mimetype="application/json")
     else:
         try:
             login_user(user)
             response["usuario"] = current_user.to_json()
             response["login"] = True
+            print("[INFO] Usuário logado: ", current_user.email)
+            return Response(json.dumps(response), status=200, mimetype="application/json")
         except Exception as e:
-            response = {'Retorno': "impossivel fazer login", 'erro': str(e)}
-        return Response(json.dumps(response), status=200, mimetype="application/json")
-    
+            response['login'] = False
+            response['erro'] = str(e)   
+            response['Retorno'] = 'Parametros invalidos ou ausentes'                
+            print("[ERRO] Impossivel fazer login \ ", e)
+            return Response(json.dumps(response), status=200, mimetype="application/json")
 
 @app.route('/logout', methods=['POST', 'GET'])
 def logout():
@@ -37,45 +49,3 @@ def logout():
     response = {"usuario": False, "Mensagem:":"Usuário desconectado"}
     return Response(json.dumps(response), status=200, mimetype="application/json")
 
-@app.route('/login_page', methods=['POST', 'GET'])
-def paginadelogin():
-    if request.method == 'POST':
-        try:
-            email = request.form['usuario']
-            pwd = request.form['senha']
-            response = {}
-
-            user = Usuario.query.filter_by(email=email).first()
-            if not user or user.verify_password(pwd):
-                response['login'] = False
-                response["Mensagem"] = "Usuario ou senha incorreta"
-                return Response(json.dumps(response), status=200, mimetype="application/json")
-            else:
-                response["login"] = True
-                try:
-                    login_user(user)
-                    response["usuario"] = current_user.to_json()
-                except Exception as e:
-                    response = {'Retorno': "impossivel fazer login", 'erro': str(e)}
-                return Response(json.dumps(response), status=200, mimetype="application/json")
-
-        except Exception as e:
-            response = {'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
-
-
-    return '''
-    <!doctype html>
-    <html>
-        <head>
-          <title>Login</title>
-        </head>
-        <body>
-          <h1>Email/Senha</h1>
-          <form method="POST" action="http://localhost:8080/login_page" enctype="multipart/form-data">
-            <input type="text" name="usuario" accept="image/*">
-            <input type="text" name="senha" accept="image/*">
-            <input type="submit" value="Enviar">
-          </form>
-        </body>
-    </html>
-    '''
