@@ -114,7 +114,7 @@
             xhr.onload = function () {
                 var jsonResult = JSON.parse(xhr.response);
                 if (jsonResult.login){
-                    
+                    window.history.back();
                 }
                 else{
                     alert("Não logado: " + jsonResult.mensagem)

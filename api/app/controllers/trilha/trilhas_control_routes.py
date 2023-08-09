@@ -94,7 +94,7 @@ def criartrilha():
             
     try:    
         if ('habilitado_padrao' in body and body['habilitado_padrao']==True):
-            trilha["habilitado_padrao"]:True
+            trilha["habilitado_padrao"]=True
             users = Usuario.query.all()
             for user in users: #Cadastra permissão no body do usuario
                 query = {"email": user.email}

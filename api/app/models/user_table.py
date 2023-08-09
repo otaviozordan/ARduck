@@ -65,7 +65,7 @@ def delete_login_table():
             db.session.delete(usuario_obj)
             db.session.commit()
 
-def authenticate(privilegio):
+def authenticate(privilegio, redirect=False):
     response = {}
     usuario = current_user.is_authenticated
     if usuario: 

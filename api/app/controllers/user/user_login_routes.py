@@ -4,10 +4,6 @@ from app import app, db
 from app.models.user_table import Usuario
 import json
 
-@app.route('/login', methods=['GET'])
-def login_render():
-    return render_template('auth/login.html')
-
 @app.route('/login', methods=['POST'])
 def login_acao():
     body = request.get_json()
@@ -45,6 +41,7 @@ def login_acao():
 
 @app.route('/logout', methods=['POST', 'GET'])
 def logout():
+    print("[INFO] Sessão encerrada de: ", current_user.nome)
     logout_user()
     response = {"usuario": False, "Mensagem:":"Usuário desconectado"}
     return Response(json.dumps(response), status=200, mimetype="application/json")
