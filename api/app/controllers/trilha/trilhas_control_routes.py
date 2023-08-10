@@ -4,6 +4,7 @@ from flask_login import current_user
 from app.models.user_table import Usuario, authenticate
 from app.models.questoes_table import Questoes
 import json
+from app.controllers import cor_vermelha, reset_prompt
 
 @app.route("/criartrilha", methods=['GET'])
 def render_cadastrar_trilha():

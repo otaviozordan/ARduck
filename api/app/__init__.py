@@ -2,6 +2,7 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import OperationalError
+from app.controllers import cor_vermelha, reset_prompt
 import pymongo
 
 app = Flask(__name__, template_folder='templates')
@@ -18,7 +19,7 @@ try:
     mongoDB = mongoClient["ARduck"]
    
 except Exception as e:
-    print("[ERRO] Erro ao conectar no DATABASE / ", e)
+    print(cor_vermelha,"[ERRO]",reset_prompt,"Erro ao conectar no DATABASE / ", e)
     
 login_manager = LoginManager(app)
 login_manager.init_app(app)

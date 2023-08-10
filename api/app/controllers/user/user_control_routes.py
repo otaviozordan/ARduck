@@ -3,6 +3,8 @@ from app import db, app, mongoDB
 from app.models.user_table import Usuario, authenticate
 from app.models.questoes_table import Questoes
 from flask_login import current_user
+from app.controllers import cor_vermelha, reset_prompt,cor_azul
+
 import json
 
 @app.route('/registrar', methods=['POST'])
@@ -32,7 +34,6 @@ def registrar_acao():
         response['erro'] = str(e)
         response['Retorno'] = 'Parametros invalidos ou ausentes'
         print("[ATENCAO] Parametros invalidos ou ausentes / ", e)
-
         return Response(json.dumps(response), status=400, mimetype="application/json")
 
     try:
@@ -41,14 +42,13 @@ def registrar_acao():
             usuario.get_id
             db.session.add(usuario)
             db.session.commit()
-            print("[INFO] Usuário cadastrado")
+            print(cor_azul,"[INFO]",reset_prompt,"Usuário cadastrado")
 
     except Exception as e:
         response['create'] = False
         response['erro'] = str(e)
         response['Retorno'] = 'Erro ao cadastrar usuário'
-        print("[ERRO] Erro ao cadastrar usuário / ", e)
-
+        print(cor_vermelha,"[ERRO]",reset_prompt,"Erro ao cadastrar usuário / ", e)
         return Response(json.dumps(response), status=200, mimetype="application/json")
 
     try:
@@ -57,11 +57,11 @@ def registrar_acao():
 
         #Busca nome das trilhas criadas já
         trilhas_existentes =  mongoDB.Trilhas.find({"turma": turma})
-        for trilhas_exixtentes_dic in trilhas_existentes:
-            trilha_nomes = [chave for chave in trilhas_exixtentes_dic.keys() if chave not in ("_id", "autor", "turma")]
-        print("[INFO] Trilhas do usuario: ", trilha_nomes)
+        for trilhas_existentes_dic in trilhas_existentes:
+            trilha_nomes = [chave for chave in trilhas_existentes_dic.keys() if chave not in ("_id", "autor", "turma")]
+        print(cor_azul,"[INFO]",reset_prompt,"Trilhas do usuario: ", trilha_nomes)
 
-        #Envia em progresso false para todas as trilhas com misão 
+        #Envia em progresso false para todas os quis com misão 
         trilhaAndElementos = {}
         for trilha_nome in trilha_nomes:
             trilhaAndElementos[trilha_nome] = {}
@@ -76,49 +76,50 @@ def registrar_acao():
             "Elementos":trilhaAndElementos
         }
         x = mongoDB.Progresso.insert_one(progressoDefult)
-        print("[INFO] Sincronizado Quiz de usuário: ", nome)
+        print(cor_azul,"[INFO]",reset_prompt,"Sincronizado Quiz de usuário: ", email)
 
         # Fazer a query para encontrar os documentos com "habilitado padrão" igual a true
         filtro = {
-        "trilha": {
-            "$elemMatch": {
-                "habilitado_padrao": True
-                }
-            }
+            "$or": [
+            ]
         }
-        trilhas_habilitadas = mongoDB.Trilha.find(filtro)
-        print(vars(trilhas_habilitadas))
-        for n in trilhas_habilitadas: 
-            print(n)
-        for trilha_habilitada in trilhas_habilitadas:
-            print(trilha_habilitada)
+        for n in trilha_nomes:
+            key = n+".habilitado_padrao"
+            filtro["$or"].append({key:True})
+        documentos_selecionados = mongoDB.Trilhas.find(filtro)
+
+        for docs in documentos_selecionados:
+            docs_key_selec = [chave for chave in docs.keys() if chave not in ("_id", "autor", "turma")]
+
+        for key_selec in docs_key_selec:
+            print(cor_azul,"[INFO]",reset_prompt,"Sincronizando '", key_selec, "'  na lista de permissões para:", email)
             query = {"email": email}
-            update = {'$set': {trilha_habilitada["_id"]: "Enable"}}  # Use o campo "_id" da trilha
+            update = {'$set': {key_selec: "Enable"}}  # Use o campo "_id" da trilha
             mongoDB.Permissoes.update_one(query, update, upsert=True)
 
-
         query = {"email":email}
-        trilhas_existentes =  mongoDB.Trilhas.find()
-        for trilha in trilhas_existentes:
-            trilha_nome = trilha["nome"]
-            if trilha["options"]["AR"]["Enable"]:
-                key = "Elementos." + str(trilha_nome) + ".AR.progresso"
-                update = {'$set': {key:""}}
-                x = mongoDB.Progresso.update_one(query, update, upsert=True);
-
-                if trilha["options"]["validacao_pratica"]["Enable"] != "Disable":
-                    key = "Elementos." + str(trilha_nome) + ".validacao_pratica.progresso"
+        for tl_ex in trilhas_existentes:
+            print("->",tl_ex)
+            for k in trilha_nomes:
+                print(k,"<-")
+                if tl_ex[k]["options"]["AR"]["Enable"]:
+                    key = "Elementos." + str(trilha_nome) + ".AR.progresso"
                     update = {'$set': {key:""}}
                     x = mongoDB.Progresso.update_one(query, update, upsert=True);
 
-        
-        Response(json.dumps(response), status=200, mimetype="application/json")
+                    if tl_ex[k]["options"]["validacao_pratica"]["Enable"] != "Disable":
+                        key = "Elementos." + str(trilha_nome) + ".validacao_pratica.progresso"
+                        update = {'$set': {key:""}}
+                        x = mongoDB.Progresso.update_one(query, update, upsert=True);
+
+        response["create"]=True
+        return Response(json.dumps(response), status=200, mimetype="application/json")
         
     except Exception as e:
         response['create'] = False
         response['erro'] = str(e)
         response['Retorno'] = 'Erro ao sicronizar usuário'
-        print("[ERRO] Erro ao sicronizar usuário / ", e)
+        print(cor_vermelha,"[ERRO]",reset_prompt,"Erro ao sicronizar usuário / ", e)
         excluir_usuario(email);
         return Response(json.dumps(response), status=200, mimetype="application/json")
     
@@ -128,14 +129,14 @@ def excluir_usuario(email):
         # Excluir usuário
         user_to_delete = Usuario.query.filter_by(email=email).first()  # Adicione .first() para obter a primeira correspondência
         if user_to_delete:
-            print("[INFO] Excluindo conta de: '", email,"'")
+            print(cor_azul,"[INFO]",reset_prompt,"Excluindo conta de: '", email,"'")
             db.session.delete(user_to_delete)
             db.session.commit()
             filtro = {"email": {"$regex": email}}
             result = mongoDB.Permissoes.delete_many(filtro)
-            print("[INFO] Excluindo permissões: ", result.deleted_count)
+            print(cor_azul,"[INFO]",reset_prompt,"Excluindo permissões: ", result.deleted_count)
             result = mongoDB.Progresso.delete_many(filtro)
-            print("[INFO] Excluindo progresso: ", result.deleted_count)
+            print(cor_azul,"[INFO]",reset_prompt,"Excluindo progresso: ", result.deleted_count)
 
     except Exception as e:
-        print("[ERRO] Erro crash de exclusão / ", e)
+        print(cor_vermelha,"[ERRO]",reset_prompt,"Erro crash de exclusão / ", e)
