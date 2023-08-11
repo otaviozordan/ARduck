@@ -17,3 +17,14 @@ try:
     print_green("Dependências instaladas com sucesso.")
 except subprocess.CalledProcessError:
     print_red("Erro ao instalar as dependências.")
+
+
+# Comando para instalar as dependências do requirements.txt
+command = 'py api\\app\models\\reiniciar_dbs.py'
+
+try:
+    # Executa o comando usando o subprocess
+    subprocess.check_call(command, shell=True)
+    print_green("Bancos de dados instaladas com sucesso.")
+except subprocess.CalledProcessError:
+    print_red("Erro ao instalar bancos.")
