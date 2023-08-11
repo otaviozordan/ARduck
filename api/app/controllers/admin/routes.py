@@ -15,3 +15,7 @@ def index():
 @app.route('/login', methods=['GET'])
 def login_render():
     return render_template('auth/login.html')
+
+@app.route('/signup', methods=['GET'])
+def signup_render():
+    return render_template('auth/signup.html')

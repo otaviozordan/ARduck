@@ -2,12 +2,12 @@ from flask import request, Response
 from app import db, app, mongoDB
 from app.models.user_table import Usuario, authenticate
 from app.models.questoes_table import Questoes
-from flask_login import current_user
+from flask_login import current_user, login_user
 from app.controllers import cor_vermelha, reset_prompt,cor_azul
 
 import json
 
-@app.route('/registrar', methods=['POST'])
+@app.route('/signup', methods=['POST'])
 def registrar_acao():   
     body = request.get_json()
     response = {}
@@ -98,10 +98,10 @@ def registrar_acao():
             mongoDB.Permissoes.update_one(query, update, upsert=True)
 
         query = {"email":email}
+        trilhas_existentes =  mongoDB.Trilhas.find({"turma": turma})
         for tl_ex in trilhas_existentes:
-            print("->",tl_ex)
             for k in trilha_nomes:
-                print(k,"<-")
+                print(cor_azul,"[INFO]",reset_prompt,"Sincronizando '", k, "'  na lista de progresso para:", email)
                 if tl_ex[k]["options"]["AR"]["Enable"]:
                     key = "Elementos." + str(trilha_nome) + ".AR.progresso"
                     update = {'$set': {key:""}}
@@ -113,6 +113,8 @@ def registrar_acao():
                         x = mongoDB.Progresso.update_one(query, update, upsert=True);
 
         response["create"]=True
+        user = Usuario.query.filter_by(email=email).first()
+        login_user(user)
         return Response(json.dumps(response), status=200, mimetype="application/json")
         
     except Exception as e:
