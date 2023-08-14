@@ -1,5 +1,8 @@
 import subprocess
 
+# Salvar dependencias
+# pip freeze > requirements.txt
+
 # Função para imprimir uma mensagem em vermelho
 def print_red(text):
     print("\033[91m" + text + "\033[0m")
