@@ -177,7 +177,7 @@ def criartrilha():
 
         return Response(json.dumps(response), status=200, mimetype="application/json")
 
-@app.route("/carregartrilhas/<string:colecao>", methods=["GET"])
+@app.route("/getEnableTrilhasByColecao/<string:colecao>", methods=["GET"])
 def carregartrilhas(colecao):
     response = {}
     try:

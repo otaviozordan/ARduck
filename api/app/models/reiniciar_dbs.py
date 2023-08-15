@@ -68,3 +68,10 @@ except:
     mongoDB.create_collection("Trilhas")
     mongoDB.create_collection("Permissoes")
     mongoDB.create_collection("Progresso")
+
+try:
+    mongoDB.create_collection("Trilhas")
+    mongoDB.create_collection("Permissoes")
+    mongoDB.create_collection("Progresso")
+except:
+    print("*")
