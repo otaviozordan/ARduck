@@ -215,18 +215,19 @@ def carregartrilhas(colecao):
             return Response(json.dumps(response), status=200, mimetype="application/json")
 
         response["Trilhas encontradas"] = []
+        print("[INFO] Buscado trilhas disponiveis para o usuário '", current_user.nome,"'")
+
         for q in query:
             q.pop('autor')
             q.pop('turma')
             q.pop('_id')
 
-        for j in q:
-            resultado = {j:{'enable':False}}
-            if j in enable_lists:
-                [resultado][j]["enable"] = True
-            response["Trilhas encontradas"].append(resultado)
+            for j in q:
+                resultado = {j:{'enable':False}}
+                if j in enable_lists:
+                    resultado[j]["enable"] = True
+                response["Trilhas encontradas"].append(resultado)
 
-        print("[INFO] Buscado trilhas disponiveis para o usuário '", current_user.nome,"'")
         return Response(json.dumps(response), status=200, mimetype="application/json")
     
     except Exception as e:
@@ -301,3 +302,4 @@ def registrarprogresso():
         print("[ERRO] Erro ao cadastrar progresso: ", e)
         return Response(json.dumps(response), status=400, mimetype="application/json")   
 
+#def monitorar_progresso():
