@@ -178,7 +178,7 @@ def criartrilha():
         return Response(json.dumps(response), status=200, mimetype="application/json")
 
 @app.route("/getEnableTrilhasByColecao/<string:colecao>", methods=["GET"])
-def carregartrilhas(colecao):
+def carregartrilhas_colecao(colecao):
     response = {}
     try:
         auth = authenticate("log")
@@ -302,4 +302,49 @@ def registrarprogresso():
         print("[ERRO] Erro ao cadastrar progresso: ", e)
         return Response(json.dumps(response), status=400, mimetype="application/json")   
 
-#def monitorar_progresso():
+def monitorar_progresso():
+    auth = authenticate("log")
+    if auth:
+        return Response(json.dumps(auth), status=200, mimetype="application/json")
+    
+    email = current_user.email
+    turma = current_user.turma
+
+@app.route("/carregartrilha/<trilha_query>", methods=["GET"])
+def carregartrilha(trilha_query):
+    response ={}
+    try:
+        auth = authenticate("log")
+        if auth:
+            return Response(json.dumps(auth), status=200, mimetype="application/json")
+       
+        email = current_user.email
+        turma = current_user.turma
+
+        filtro = {}
+
+        # Buscar a trilha correspondente à turma do aluno
+        query = {
+            "turma": turma,
+            trilha_query: {"$exists": True}
+        }
+        trilha_load = mongoDB.Trilhas.find_one(query, {trilha_query: 1})
+
+        if trilha_load and trilha_load[trilha_query]:
+            del trilha_load[trilha_query]["habilitado_padrao"]
+            del trilha_load[trilha_query]["colecao"]
+            del trilha_load[trilha_query]["order"]
+
+            response["get"]=True
+            response["trilha"]=trilha_load[trilha_query]
+        else:
+            response["get"]=False
+            response["trilha"]="Trilha não encontrada para a turma do aluno"
+        return Response(json.dumps(response), status=200, mimetype="application/json")
+       
+    except Exception as e:
+        response['get'] = False
+        response['erro'] = str(e)
+        response['Retorno'] = "Erro ao buscar trilha"
+        print("[ERRO] Erro ", e, " ao buscar trilha", trilha_query, "/ vindo de: ", email)
+        return Response(json.dumps(response), status=400, mimetype="application/json")

@@ -16,7 +16,7 @@ def registrar_acao():
         usuario_existente = Usuario.query.filter_by(email=email).first()
         if usuario_existente:
             response = {'Retorno': "Email já criado", "create":False}
-            return Response(json.dumps(response), status=400, mimetype="application/json")
+            return Response(json.dumps(response), status=200, mimetype="application/json")
         else:
             pwd = body['password']
             nome = body['nome']
@@ -49,18 +49,54 @@ def registrar_acao():
         response['erro'] = str(e)
         response['Retorno'] = 'Erro ao cadastrar usuário'
         print(cor_vermelha,"[ERRO]",reset_prompt,"Erro ao cadastrar usuário / ", e)
-        return Response(json.dumps(response), status=200, mimetype="application/json")
+        return Response(json.dumps(response), status=500, mimetype="application/json")
 
     try:
         userPermissao = {"usuario":nome, "email":email}
         x = mongoDB.Permissoes.insert_one(userPermissao)
+        trilha_nomes = [] 
 
         #Busca nome das trilhas criadas já
         trilhas_existentes =  mongoDB.Trilhas.find({"turma": turma})
         for trilhas_existentes_dic in trilhas_existentes:
             trilha_nomes = [chave for chave in trilhas_existentes_dic.keys() if chave not in ("_id", "autor", "turma")]
-        print(cor_azul,"[INFO]",reset_prompt,"Trilhas do usuario: ", trilha_nomes)
 
+        if len(trilha_nomes) == 0: #Cria trilha de boas vindas
+            doc_bem_vindo = {
+                "turma":turma,
+                "Bem vindo":{
+                    "trilha_nome":"Bem Vindo!",
+                    "colecao": "ARduck",
+                    "order": 1,
+                    "imagem_path": "urldopath",
+                    "descricao": "Seja bem vindo ao ARduck, aqui você aprende de verdade. Essa trilha sumirá quando você criar outra.",
+                    "options":{
+                        "teoria": False,
+                        "img_teoria":False,
+                        "AR": {
+                            "Enable": False,
+                            "id":False
+                        },
+                        "Quiz": {
+                            "Enable": False,
+                            "id": False
+                        },
+                        "validacao_pratica":{
+                            "Enable": False,
+                            "type":False
+                        }
+                    },
+                    "habilitado_padrao": True
+                }  
+            }   
+            mongoDB.Trilhas.insert_one(doc_bem_vindo)
+            trilhas_existentes =  mongoDB.Trilhas.find({"turma": turma})
+            print(cor_azul,"[INFO]",reset_prompt,"Criando turma: ", turma)
+            for trilhas_existentes_dic in trilhas_existentes:
+                trilha_nomes = [chave for chave in trilhas_existentes_dic.keys() if chave not in ("_id", "autor", "turma")]
+
+        print(cor_azul,"[INFO]",reset_prompt,"Trilhas do usuario: ", trilha_nomes)
+        
         #Envia em progresso false para todas os quis com misão 
         trilhaAndElementos = {}
         for trilha_nome in trilha_nomes:
@@ -123,7 +159,7 @@ def registrar_acao():
         response['Retorno'] = 'Erro ao sicronizar usuário'
         print(cor_vermelha,"[ERRO]",reset_prompt,"Erro ao sicronizar usuário / ", e)
         excluir_usuario(email);
-        return Response(json.dumps(response), status=200, mimetype="application/json")
+        return Response(json.dumps(response), status=500, mimetype="application/json")
     
 def excluir_usuario(email):
     response = {}

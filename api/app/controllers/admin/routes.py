@@ -11,11 +11,19 @@ def index():
     print("[INFO] Sessão iniciada por: ", current_user.nome)
     return render_template('home/index.html')
 
-
 @app.route('/login', methods=['GET'])
 def login_render():
     return render_template('auth/login.html')
 
 @app.route('/signup', methods=['GET'])
 def signup_render():
+    
     return render_template('auth/signup.html')
+
+@app.route('/home',  methods=['GET'])
+def home_render():
+    auth = authenticate("professor")
+    if auth:
+        return redirect("/login")
+    print("[INFO] Sessão iniciada por: ", current_user.nome)
+    return render_template('home/index.html')

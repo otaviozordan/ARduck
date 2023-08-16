@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
 
-    <title><title>ARduck - Log In!</title></title>
+    <title>ARduck - Sign In!</title></title>
     <link rel="stylesheet" href="{{ url_for('static', filename='auth/style.css') }}">
 
 </head>
@@ -67,7 +67,7 @@
 
                     </div>
 
-                    <div class="links"> <a href="#">Forgot Password</a> <a href="#">Signup</a>
+                    <div class="links"> <a href="#">Forgot Password</a> <a href="/signup">Signup</a>
 
                     </div>
                     <div class="inputBox">
@@ -114,7 +114,7 @@
             xhr.onload = function () {
                 var jsonResult = JSON.parse(xhr.response);
                 if (jsonResult.login){
-                    window.history.back();
+                    window.location.href = "/home";
                 }
                 else{
                     alert("Não logado: " + jsonResult.mensagem)

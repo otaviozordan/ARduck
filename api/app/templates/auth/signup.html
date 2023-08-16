@@ -129,9 +129,6 @@
 
             var jsonFormData = JSON.stringify(formData);
 
-            // You can use this JSON string (jsonFormData) to send to a server or perform other actions
-            //console.log(jsonFormData);
-
             var xhr = new XMLHttpRequest();
             var currentURL = window.location.href; // Get the current URL
             xhr.open("POST", currentURL, true); // Send data to the same URL
@@ -149,10 +146,13 @@
             xhr.send(JSON.stringify(formData));
             xhr.onload = function () {
                 var jsonResult = JSON.parse(xhr.response);
-                if (jsonResult.login) {
-                    window.history.back();
+                if (jsonResult.create) {
+                    window.location.href = "/home";
                 }
-                else {
+                else if (jsonResult.create == false && jsonResult.Retorno == "Email já criado"){
+                    alert("Email em uso!")                    
+                }
+                else{
                     alert("Não logado: " + jsonResult.mensagem)
                 }
             };
