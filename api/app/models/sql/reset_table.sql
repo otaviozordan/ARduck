@@ -22,5 +22,3 @@ CREATE TABLE questoes (
     alternativa3 VARCHAR(50),
     alternativa4 VARCHAR(50)
 );
-
-INSERT INTO `arduck`.`usuario` (`id`, `password`, `nome`, `email`, `turma`, `privilegio`) VALUES ('1', 'admin', 'Otavio Zordan', 'otavio.com', 'defult', 'administrador');

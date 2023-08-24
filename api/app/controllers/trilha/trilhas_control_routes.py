@@ -202,6 +202,7 @@ def carregartrilhas_colecao(colecao):
 
     try:
         for permissao in permissoes:
+            print(permissao)
             permissao.pop('_id')
             permissao.pop('usuario')
             permissao.pop('email')

@@ -149,11 +149,11 @@
                 if (jsonResult.create) {
                     window.location.href = "/home";
                 }
-                else if (jsonResult.create == false && jsonResult.Retorno == "Email já criado"){
+                else if (jsonResult.Retorno == "Email já criado"){
                     alert("Email em uso!")                    
                 }
                 else{
-                    alert("Não logado: " + jsonResult.mensagem)
+                    alert("Não logado: " + jsonResult.Retorno)
                 }
             };
         }

@@ -150,7 +150,6 @@ def registrar_acao():
 
         response["create"]=True
         user = Usuario.query.filter_by(email=email).first()
-        login_user(user)
         return Response(json.dumps(response), status=200, mimetype="application/json")
         
     except Exception as e:
