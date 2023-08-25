@@ -124,7 +124,8 @@
                 nome: nome,
                 email: email,
                 password: password,
-                turma: turma
+                turma: turma,
+                privilegio: "professor"
             };
 
             var jsonFormData = JSON.stringify(formData);
@@ -147,7 +148,7 @@
             xhr.onload = function () {
                 var jsonResult = JSON.parse(xhr.response);
                 if (jsonResult.create) {
-                    window.location.href = "/home";
+                    window.location.href = "/login";
                 }
                 else if (jsonResult.Retorno == "Email já criado"){
                     alert("Email em uso!")                    

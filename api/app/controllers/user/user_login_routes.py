@@ -22,7 +22,7 @@ def login_acao():
         return Response(json.dumps(response), status=200, mimetype="application/json")
 
     user = Usuario.query.filter_by(email=email).first()
-    if not user or user.verify_password(pwd):
+    if not user or not user.verify_password(pwd):
         response['login'] = False
         response["mensagem"] = "Usuario ou senha incorreta"
         print("[ATENÇAO] Login incorreto. Tentativa de acessar: ", email)

@@ -95,5 +95,6 @@ except:
     print("*")
 
 print(Fore.GREEN + "[INFO] Collections created successfully!")
+print(Fore.YELLOW + f"[INFO] Your keys: user -> {user_data['email']}, password -> {user_data['password']}")
 
 print(Style.RESET_ALL)

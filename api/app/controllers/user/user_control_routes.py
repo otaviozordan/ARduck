@@ -177,3 +177,50 @@ def excluir_usuario(email):
 
     except Exception as e:
         print(cor_vermelha,"[ERRO]",reset_prompt,"Erro crash de exclusão / ", e)
+
+
+@app.route('/buscarusuarios_turma', methods=['GET'])
+def listar_usuarios_turma():
+    auth = authenticate("log")
+    if auth:
+        return Response(json.dumps(auth), status=401, mimetype="application/json")
+    
+    turma_usuario_logado = current_user.turma
+    # Ordena por privilegio (professor primeiro) e nome
+    usuarios = Usuario.query.filter_by(turma=turma_usuario_logado).order_by(Usuario.privilegio.desc(), Usuario.nome).all()
+    usuarios_json = []
+
+    for usuario in usuarios:
+        usuario_dict = {
+            "id": usuario.id,
+            "email": usuario.email,
+            "nome": usuario.nome,
+            "privilegio": usuario.privilegio,
+            "turma": usuario.turma
+        }
+        usuarios_json.append(usuario_dict)
+
+    return Response(json.dumps(usuarios_json), status=200, mimetype="application/json")
+
+
+@app.route('/buscarusuarios', methods=['GET'])
+def listar_usuarios():
+    auth = authenticate("administrador")
+    if auth:
+        return Response(json.dumps(auth), status=401, mimetype="application/json")
+    
+    # Ordena por privilegio (professor primeiro) e nome
+    usuarios = Usuario.query.order_by(Usuario.privilegio.desc(), Usuario.nome).all()
+    usuarios_json = []
+
+    for usuario in usuarios:
+        usuario_dict = {
+            "id": usuario.id,
+            "email": usuario.email,
+            "nome": usuario.nome,
+            "privilegio": usuario.privilegio,
+            "turma": usuario.turma
+        }
+        usuarios_json.append(usuario_dict)
+
+    return Response(json.dumps(usuarios_json), status=200, mimetype="application/json")

@@ -56,100 +56,41 @@ function updateGraph(data) {
 
 function addUserToTable(data) {
   var table = $('.users-table');
-  var ele = '<div class="users-item"><div class="table-item noflex">' + data['id'] + '</div><div class="table-item">' + data['email'] + '</div><div class="table-item">' + data['username'] + '</div><div class="table-item">' + data['nickname'] + '</div><div class="table-item">' + (data['premium'] ? "Active" : "Inactive") + '</div><div class="table-item">' + (data['premium'] ? "Premium" : "Not Premium") + '<div class="user-edit-controls"><a href="#" class="table-edit-button">Edit</a></div></div></div>';
+  var ele = '<div class="users-item"><div class="table-item noflex">' + data['id'] + '</div><div class="table-item">' + data['nome'] + '</div><div class="table-item">' + data['email'] + '</div><div class="table-item">' + data['privilegio'] + '</div><div class="table-item">' + data['turma'] + '<div class="user-edit-controls"><a href="#" class="table-edit-button">Edit</a></div></div></div>';
   table.append(ele);
 }
 
-var tempData = {
-  sunday: 40,
-  monday: 50,
-  tuesday: 30,
-  wednesday: 20,
-  thursday: 30,
-  friday: 60,
-  saturday: 90
+var tempData = {};
+
+// Função para carregar a lista de usuários através de uma requisição AJAX
+function carregarUsuariosParaTemp() {
+  fetch('/buscarusuarios_turma')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro na requisição');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Atribui os dados de usuários à variável tempData
+      tempData = data;
+      // Atualiza o gráfico ou realiza outras operações com os dados, se necessário
+      updateGraph(tempData);
+      // Adiciona os usuários à tabela, se necessário
+      $.each(tempData, function (i, item) {
+        addUserToTable(tempData[i]);
+      });
+    })
+    .catch(error => {
+      // Lida com erros
+      console.error(error);
+    });
 }
 
-var users = [
-  {
-    "id": 0,
-    "email": "suzannenixon@medicroix.com",
-    "username": "Rosemarie45",
-    "nickname": "Mildred11",
-    "active": true,
-    "premium": false
-  },
-  {
-    "id": 10,
-    "email": "mildrednixon@medicroix.com",
-    "username": "Lorrie24",
-    "nickname": "Warren15",
-    "active": false,
-    "premium": true
-  },
-  {
-    "id": 20,
-    "email": "warrennixon@medicroix.com",
-    "username": "Celina35",
-    "nickname": "Beck16",
-    "active": false,
-    "premium": false
-  },
-  {
-    "id": 30,
-    "email": "becknixon@medicroix.com",
-    "username": "Simone18",
-    "nickname": "Tonia12",
-    "active": false,
-    "premium": true
-  },
-  {
-    "id": 40,
-    "email": "tonianixon@medicroix.com",
-    "username": "Alejandra31",
-    "nickname": "Eileen42",
-    "active": true,
-    "premium": false
-  },
-  {
-    "id": 50,
-    "email": "eileennixon@medicroix.com",
-    "username": "Ofelia4",
-    "nickname": "Walsh36",
-    "active": true,
-    "premium": true
-  },
-  {
-    "id": 60,
-    "email": "walshnixon@medicroix.com",
-    "username": "Owen24",
-    "nickname": "Mayra0",
-    "active": false,
-    "premium": true
-  },
-  {
-    "id": 70,
-    "email": "mayranixon@medicroix.com",
-    "username": "Tamra8",
-    "nickname": "Graham9",
-    "active": false,
-    "premium": true
-  },
-  {
-    "id": 80,
-    "email": "grahamnixon@medicroix.com",
-    "username": "Dejesus44",
-    "nickname": "Russo5",
-    "active": false,
-    "premium": false
-  }
-];
-
-$.each(users, function (i, item) {
-  addUserToTable(users[i]);
-});
-
-updateGraph(tempData);
+// Chama a função para carregar usuários quando a página é carregada
+window.onload = function () {
+  carregarUsuariosParaTemp();
+};
 
 $('body').on('click', '.users-item:not(.header)', function () {
   console.log('click')
@@ -174,15 +115,15 @@ function logout() {
       if (!response.ok) {
         throw new Error('Erro na requisição');
       }
-      return response.json(); // ou response.text() para texto
+      return response.json();
     })
     .then(data => {
       // Manipule os dados da resposta aqui
       console.log(data);
+      location.reload(true); // Recarrega a página após o logout
     })
     .catch(error => {
       // Lida com erros
       console.error(error);
     });
-    location.reload(true);
 }

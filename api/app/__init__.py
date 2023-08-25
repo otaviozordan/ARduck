@@ -30,4 +30,4 @@ from app.controllers.user import user_login_routes
 from app.controllers.quiz import quiz_routes
 from app.controllers.quiz import quiz_respostas_abertas
 from app.controllers.trilha import trilhas_control_routes
-from app.controllers.admin import routes
+from app.controllers.site import routes
