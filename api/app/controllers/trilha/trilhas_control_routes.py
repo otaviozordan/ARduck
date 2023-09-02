@@ -57,12 +57,12 @@ def criartrilha():
             validacao_pratica_en = False
             validacao_pratica = "Disabled"
 
-        if 'Quiz' in body and body["Quiz"] == True:
+        if 'Quiz' in body:
             Quiz = True
-            Quiz_id = body["Quiz_id"]
+            Quiz_dic = body["Quiz_dic"]
         else: 
             Quiz = False
-            Quiz_id = "Disabled"
+            Quiz_dic = "Disabled"
 
     except Exception as e:
         response = {'create':False,'Retorno': "Parametros invalidos ou ausentes", 'erro': str(e)}
@@ -83,7 +83,7 @@ def criartrilha():
             },
             "Quiz": {
                 "Enable": Quiz,
-                "id":Quiz_id
+                "questions":Quiz_dic
             },
             "validacao_pratica":{
                 "Enable": validacao_pratica_en,
@@ -109,6 +109,7 @@ def criartrilha():
                 query = {"email": user}
                 update = {'$set': {trilha_nome: False}}
                 x = mongoDB.Permissoes.update_one(query, update, upsert=True);
+                print("[INFO] Permissão definida (False): ", x.acknowledged," / Para o usuário '", user.nome,"'")
     
     except Exception as e:
         response['create'] = False
@@ -183,7 +184,7 @@ def carregartrilhas_colecao(colecao):
     try:
         auth = authenticate("log")
         if auth:
-            return Response(json.dumps(auth), status=200, mimetype="application/json")
+            return Response(json.dumps(auth), status=401, mimetype="application/json")
         
         enable_lists = []
         turma = current_user.turma

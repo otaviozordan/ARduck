@@ -35,6 +35,44 @@ try:
 except pymysql.Error as err:
     print(Fore.RED + f"[ERRO] Erro ao executar os comandos: {err}")
 
+mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")
+mongoDB = mongoClient["ARduck"]
+
+try:
+    mongoDB.Trilhas.drop()
+    mongoDB.Permissoes.drop()
+    mongoDB.Progresso.drop()
+except:
+    mongoDB.create_collection("Trilhas")
+    mongoDB.create_collection("Permissoes")
+    mongoDB.create_collection("Progresso")
+
+try:
+    mongoDB.create_collection("Trilhas")
+    mongoDB.create_collection("Permissoes")
+    mongoDB.create_collection("Progresso")
+except:
+    print("*")
+
+trilha_data = {
+	"colecao":"Eletronica",
+	"trilha_nome":"ARduck",
+	"order":1,
+	"turma":"defult",
+	"validacao_pratica":"multimetro",
+	"AR":True,
+	"AR_id":"...",
+	"descricao":"Resistores resistem",
+	"habilitado_padrao":True,
+    "Quiz_dic":[
+        {
+            "pergunta":"Quem é você?",
+            "resposta_certa":"Sou o principio e o fim",
+            "alternativa 1":"Jesus"
+        }
+    ]
+    }
+
 user_data = {
     'nome': 'Otavio Admin',
     'email': 'otavio.admin',
@@ -44,10 +82,24 @@ user_data = {
 }
 
 user_json = json.dumps(user_data)
-registration_url = 'http://localhost:8080/signup'
+registration_url = 'http://localhost:80/signup'
 try:
     response = requests.post(registration_url, data=user_json, headers={'Content-Type': 'application/json'})
 
+    if response.status_code == 200:
+        print(Fore.GREEN + "[PROCESS] Registration successful!")
+    elif response.status_code == 400:
+        print(Fore.RED + "[ERRO] Registration failed. User data is invalid.")
+    else:
+        print(Fore.RED + "[ERRO] Registration failed with status code:", response.status_code)
+
+except requests.exceptions.RequestException as e:
+    print(Fore.RED + "[ERRO] An error occurred during registration:", str(e))
+
+trilha_json = json.dumps(trilha_data)
+registration_url = 'http://localhost:80/criartrilha'
+try:
+    response = requests.post(registration_url, data=trilha_json, headers={'Content-Type': 'application/json'})
     if response.status_code == 200:
         print(Fore.GREEN + "[PROCESS] Registration successful!")
     elif response.status_code == 400:
@@ -74,25 +126,6 @@ print(table)
 
 cursor.close()
 conn.close()
-
-mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")
-mongoDB = mongoClient["ARduck"]
-
-try:
-    mongoDB.Trilhas.drop()
-    mongoDB.Permissoes.drop()
-    mongoDB.Progresso.drop()
-except:
-    mongoDB.create_collection("Trilhas")
-    mongoDB.create_collection("Permissoes")
-    mongoDB.create_collection("Progresso")
-
-try:
-    mongoDB.create_collection("Trilhas")
-    mongoDB.create_collection("Permissoes")
-    mongoDB.create_collection("Progresso")
-except:
-    print("*")
 
 print(Fore.GREEN + "[INFO] Collections created successfully!")
 print(Fore.YELLOW + f"[INFO] Your keys: user -> {user_data['email']}, password -> {user_data['password']}")

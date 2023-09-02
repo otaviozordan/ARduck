@@ -55,7 +55,7 @@ def validar_multimetro_upimg():
         </head>
         <body>
           <h1>Upload de Imagem</h1>
-          <form method="POST" action="http://localhost:8080/validacao_medidas" enctype="multipart/form-data">
+          <form method="POST" action="http://localhost:80/validar_multimetro_upimg" enctype="multipart/form-data">
             <input type="file" name="image" accept="image/*">
             <input type="submit" value="Enviar">
           </form>
