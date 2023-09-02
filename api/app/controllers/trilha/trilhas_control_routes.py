@@ -43,12 +43,10 @@ def criartrilha():
             teoria = "Disabled"
             img_teoria = "Disabled"
 
-        if 'AR' in body and body["AR"] == True:
-            AR = True
-            AR_id = body["AR_id"]
+        if 'AR' in body:
+            AR = body["AR"]
         else: 
             AR = False
-            AR_id = "Disabled"
 
         if 'validacao_pratica' in body:
             validacao_pratica_en = True
@@ -77,10 +75,7 @@ def criartrilha():
         "options":{
             "teoria": teoria,
             "img_teoria":img_teoria,
-            "AR": {
-                "Enable": AR,
-                "id":AR_id
-            },
+            "AR": AR,
             "Quiz": {
                 "Enable": Quiz,
                 "questions":Quiz_dic
@@ -159,7 +154,7 @@ def criartrilha():
                 update = {'$set': {key:quiz}}
                 x = mongoDB.Progresso.update_one(query, update, upsert=True);
         
-                if trilha["options"]["AR"]["Enable"]:
+                if trilha["options"]["AR"]:
                     key = "Elementos." + str(trilha_nome) + ".AR.progresso"
                     update = {'$set': {key:""}}
                     x = mongoDB.Progresso.update_one(query, update, upsert=True);
@@ -199,7 +194,7 @@ def carregartrilhas_colecao(colecao):
         response['Retorno'] = 'Erro ao carregar trilhas'
         print("[ERRO] Erro ao carregar trilhas / ", e)
 
-        return Response(json.dumps(response), status=400, mimetype="application/json")
+        return Response(json.dumps(response), status=500, mimetype="application/json")
 
     try:
         for permissao in permissoes:
@@ -213,13 +208,14 @@ def carregartrilhas_colecao(colecao):
             print("[INFO] Coleção solicitada inesistente / Usuário solicitante: '", current_user.nome,"'")
             response['find'] = False
             response['Retorno'] = 'Coleção solicitada inexistente'
-            return Response(json.dumps(response), status=200, mimetype="application/json")
+            return Response(json.dumps(response), status=400, mimetype="application/json")
 
         response["Trilhas encontradas"] = []
         print("[INFO] Buscado trilhas disponiveis para o usuário '", current_user.nome,"'")
 
         for q in query:
-            q.pop('autor')
+            if "autor" in q:
+                q.pop('autor')
             q.pop('turma')
             q.pop('_id')
 
@@ -237,7 +233,7 @@ def carregartrilhas_colecao(colecao):
         response['Retorno'] = 'Erro ao filtrar trilhas'
         print("[ERRO] Erro ao filtrar trilhas / ", e)
 
-        return Response(json.dumps(response), status=400, mimetype="application/json")
+        return Response(json.dumps(response), status=500, mimetype="application/json")
        
 @app.route("/registrarprogresso", methods=["POST"])
 def registrarprogresso():

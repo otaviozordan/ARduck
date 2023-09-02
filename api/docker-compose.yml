@@ -10,7 +10,7 @@ services:
       - mongodb  # Indica que este serviço depende dos serviços 'mongodb' e 'mysql'.
       - mysql
     environment:
-      MONGO_URI: mongodb://mongodb:27017/arduck  # Configura as variáveis de ambiente para a aplicação Flask.
+      MONGO_URI: mongodb://mongodb:27017/ARduck  # Configura as variáveis de ambiente para a aplicação Flask.
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USER: root

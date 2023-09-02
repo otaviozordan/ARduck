@@ -64,7 +64,7 @@ def registrar_acao():
         if len(trilha_nomes) == 0: #Cria trilha de boas vindas
             doc_bem_vindo = {
                 "turma":turma,
-                "author":"Moderadores",
+                "autor":"Moderadores",
                 "Bem vindo":{
                     "trilha_nome":"Bem Vindo!",
                     "colecao": "ARduck",
