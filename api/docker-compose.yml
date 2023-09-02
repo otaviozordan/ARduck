@@ -1,0 +1,36 @@
+version: '3'
+services:
+  flask-app:
+    build:
+      context: . # Aqui você especifica o caminho para o Dockerfile que construirá a imagem do seu aplicativo Flask.
+      dockerfile: Dockerfile  # Substitua pelo nome correto do seu Dockerfile Flask, se necessário.
+    ports:
+      - "80:80"  # Mapeia a porta 80 do host para a porta 80 do contêiner.
+    depends_on:
+      - mongodb  # Indica que este serviço depende dos serviços 'mongodb' e 'mysql'.
+      - mysql
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/arduck  # Configura as variáveis de ambiente para a aplicação Flask.
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: arduck
+
+  mongodb:
+    image: mongo  # Usa a imagem oficial do MongoDB do Docker Hub.
+    ports:
+      - "27017:27017"  # Mapeia a porta 27017 para acessar o MongoDB no contêiner.
+    volumes:
+      - mongodb_data:/data/db  # Define um volume chamado 'mongodb_data' para persistir os dados do MongoDB.
+
+  mysql:
+    image: mysql:latest  # Usa a imagem oficial mais recente do MySQL do Docker Hub.
+    ports:
+      - "3306:3306"  # Mapeia a porta 3306 para acessar o MySQL no contêiner.
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Configura a senha do usuário root do MySQL e o nome do banco de dados.
+      MYSQL_DATABASE: arduck
+
+volumes:
+  mongodb_data:  # Define o volume 'mongodb_data' usado pelo serviço MongoDB.
