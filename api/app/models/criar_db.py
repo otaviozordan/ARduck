@@ -9,6 +9,7 @@ conn = ()
 # Função para verificar se o MySQL está disponível
 def check_mysql_connection():
     try:
+        global conn
         conn = pymysql.connect(
             host="mysql",
             user="root",
