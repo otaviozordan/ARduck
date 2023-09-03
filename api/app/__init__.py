@@ -19,11 +19,11 @@ DATABASE_IMG_PATH = 'api\\app\\models\\imgs\\'
 try:   
     from app.models import criar_db
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost:3306/arduck'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@mysql:3306/arduck'
     db = SQLAlchemy(app)
 
     # Configura o MongoDB
-    mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")
+    mongoClient = pymongo.MongoClient("mongodb://mongodb:27017/")
     mongoDB = mongoClient["ARduck"]
    
 except SQLAlchemyError as e:  # Captura exceções do SQLAlchemy
