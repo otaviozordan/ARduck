@@ -1,7 +1,9 @@
 import pymysql
 import pymongo
 from colorama import Fore, Style  # Import colorama for colored output
+import time
 
+time.sleep(5)
 print(Fore.GREEN + "[PROCESS] Criando Banco de dados")
 # Conectar ao banco de dados MySQL
 conn = pymysql.connect(
