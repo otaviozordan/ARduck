@@ -1,12 +1,8 @@
 import pymysql
 import pymongo
 from colorama import Fore, Style  # Import colorama for colored output
-import wait_for_it
 
 print(Fore.GREEN + "[PROCESS] Criando Banco de dados")
-
-wait_for_it.wait_for_it("mysql:3306", timeout=60)  # Aguarda até 60 segundos
-
 # Conectar ao banco de dados MySQL
 conn = pymysql.connect(
     host="mysql",  # Nome do serviço MySQL no Docker Compose
