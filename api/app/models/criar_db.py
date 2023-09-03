@@ -6,7 +6,7 @@ print(Fore.GREEN + "[PROCESS] Criando Banco de dados")
 
 # Conectar ao banco de dados MySQL
 conn = pymysql.connect(
-    host="localhost",  # Endereço do servidor MySQL
+    host="mysql",  # Endereço do servidor MySQL
     user="root",       # Nome de usuário
     password="root",   # Senha
     database="arduck"

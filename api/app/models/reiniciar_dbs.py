@@ -9,7 +9,7 @@ print(Fore.GREEN + "[PROCESS] Reiniciando Banco de dados")
 
 # Conectar ao banco de dados MySQL
 conn = pymysql.connect(
-    host="localhost",  # Endereço do servidor MySQL
+    host="mysql",  # Endereço do servidor MySQL
     user="root",       # Nome de usuário
     password="root",   # Senha
     database="arduck"  # Nome do banco de dados
