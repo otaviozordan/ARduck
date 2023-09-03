@@ -4,12 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from colorama import Fore, Style 
 import mysql.connector
 import pymongo
-import logging
 from sqlalchemy.exc import SQLAlchemyError 
-
-# Configura o nível de log global para DEBUG
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.ERROR)
 
 # Função para formatar mensagens de erro
 def erro_msg(msg, error):
@@ -33,15 +28,12 @@ try:
    
 except SQLAlchemyError as e:  # Captura exceções do SQLAlchemy
     print(erro_msg("Erro ao conectar no DATABASE (SQLAlchemyError)", e))
-    logging.error("Erro ao conectar no DATABASE (SQLAlchemyError): %s", e)
 
 except mysql.connector.Error as e:  # Captura exceções do MySQL
     print(erro_msg("Erro ao conectar no DATABASE (mysql.connector.Error)", e))
-    logging.error("Erro ao conectar no DATABASE (mysql.connector.Error): %s", e)
 
 except Exception as e:
     print(erro_msg("Erro ao conectar no DATABASE", e))
-    logging.error("Erro ao conectar no DATABASE: %s", e)
 
 # Configura o LoginManager
 login_manager = LoginManager(app)

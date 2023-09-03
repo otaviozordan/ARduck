@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 80
 
 # Inicie sua aplicação Flask
-CMD ["python", "app.py"]
+CMD ["python", "run.py"]
