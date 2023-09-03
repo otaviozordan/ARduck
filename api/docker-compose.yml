@@ -16,6 +16,9 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: arduck
+    networks:
+      - minha-rede
+
 
   mongodb:
     image: mongo  # Usa a imagem oficial do MongoDB do Docker Hub.
@@ -23,14 +26,22 @@ services:
       - "27017:27017"  # Mapeia a porta 27017 para acessar o MongoDB no contêiner.
     volumes:
       - mongodb_data:/data/db  # Define um volume chamado 'mongodb_data' para persistir os dados do MongoDB.
+    networks:
+      - minha-rede
 
   mysql:
     image: mysql:latest  # Usa a imagem oficial mais recente do MySQL do Docker Hub.
     ports:
       - "3306:3306"  # Mapeia a porta 3306 para acessar o MySQL no contêiner.
     environment:
-      MYSQL_ROOT_PASSWORD: root  # Configura a senha do usuário root do MySQL e o nome do banco de dados.
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: arduck
+      MYSQL_ROOT_HOST: '%'
+    networks:
+      - minha-rede
 
 volumes:
   mongodb_data:  # Define o volume 'mongodb_data' usado pelo serviço MongoDB.
+
+networks:
+  minha-rede:
