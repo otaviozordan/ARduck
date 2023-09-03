@@ -3,15 +3,28 @@ import pymongo
 from colorama import Fore, Style  # Import colorama for colored output
 import time
 
-time.sleep(5)
 print(Fore.GREEN + "[PROCESS] Criando Banco de dados")
-# Conectar ao banco de dados MySQL
-conn = pymysql.connect(
-    host="mysql",  # Nome do serviço MySQL no Docker Compose
-    user="root",
-    password="root",
-    database="arduck"
-)
+conn = ()
+
+# Função para verificar se o MySQL está disponível
+def check_mysql_connection():
+    try:
+        conn = pymysql.connect(
+            host="mysql",
+            user="root",
+            password="root",
+            database="arduck"
+        )
+        return True
+    except pymysql.Error as e:
+        return False
+
+# Esperar até que o MySQL esteja pronto (retorna True)
+while not check_mysql_connection():
+    print(Fore.YELLOW + "Aguardando conexão com o MySQL...")
+    time.sleep(2)
+
+print(Fore.GREEN + "Conexão com o MySQL estabelecida com sucesso!")
 
 # Criar um cursor para interagir com o banco de dados
 cursor = conn.cursor()
