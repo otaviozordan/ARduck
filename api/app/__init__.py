@@ -5,6 +5,7 @@ from colorama import Fore, Style
 import mysql.connector
 import pymongo
 from sqlalchemy.exc import SQLAlchemyError 
+import sys
 
 # Função para formatar mensagens de erro
 def erro_msg(msg, error):
@@ -17,7 +18,12 @@ DATABASE_IMG_PATH = 'api\\app\\models\\imgs\\'
 
 # Configura o SQLAlchemy
 try:   
-    from app.models import criar_db
+    try:
+        from app.models import criar_db
+    except Exception as e:
+        print(erro_msg("Erro ao criar DATABASE", e))
+        sys.exit(1)
+
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@mysql:3306/arduck'
     db = SQLAlchemy(app)
@@ -26,14 +32,9 @@ try:
     mongoClient = pymongo.MongoClient("mongodb://mongodb:27017/")
     mongoDB = mongoClient["ARduck"]
    
-except SQLAlchemyError as e:  # Captura exceções do SQLAlchemy
-    print(erro_msg("Erro ao conectar no DATABASE (SQLAlchemyError)", e))
-
-except mysql.connector.Error as e:  # Captura exceções do MySQL
-    print(erro_msg("Erro ao conectar no DATABASE (mysql.connector.Error)", e))
-
 except Exception as e:
     print(erro_msg("Erro ao conectar no DATABASE", e))
+    sys.exit(1)
 
 # Configura o LoginManager
 login_manager = LoginManager(app)

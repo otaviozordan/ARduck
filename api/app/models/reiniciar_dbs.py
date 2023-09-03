@@ -63,7 +63,7 @@ try:
 except pymysql.Error as err:
     print(Fore.RED + f"[ERRO] Erro ao executar os comandos: {err}")
 
-mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")
+mongoClient = pymongo.MongoClient("mongodb://mongo:27017/")
 mongoDB = mongoClient["ARduck"]
 
 try:
